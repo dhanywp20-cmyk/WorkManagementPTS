@@ -3337,7 +3337,7 @@ export default function TicketingSystem() {
         )}
 
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes scale-in {
           from { opacity: 0; transform: scale(0.92); }
           to { opacity: 1; transform: scale(1); }
