@@ -635,8 +635,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CENTER — Global Search selalu di tengah */}
-          <div className="flex-1 flex items-center justify-center px-4 md:px-8">
+          {/* CENTER — Global Search + NotificationBar selalu tampil */}
+          <div className="flex-1 flex items-center justify-center gap-3 px-3 md:px-6">
             {currentUser && (
               <GlobalSearch
                 currentUser={currentUser}
@@ -646,9 +646,8 @@ export default function Dashboard() {
                 }}
               />
             )}
-            {/* Notif bar (main menu only) — di sebelah search */}
-            {!showSidebar && currentUser && (
-              <div className="ml-3 flex-shrink-0">
+            {currentUser && (
+              <div className="flex-shrink-0">
                 <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
               </div>
             )}
@@ -656,11 +655,6 @@ export default function Dashboard() {
 
           {/* RIGHT */}
           <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
-            {/* NotificationBar — di kanan hanya saat sidebar view */}
-            {showSidebar && currentUser && (
-              <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
-            )}
-
             {/* User badge — hanya di main menu (non-sidebar), hidden di mobile kecil */}
             {!showSidebar && (
               <div className="hidden md:flex items-center gap-2.5 px-4 py-2 rounded-xl border border-slate-200/80 bg-white/70 backdrop-blur-sm">
@@ -854,6 +848,22 @@ export default function Dashboard() {
           {/* Top accent line */}
           <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #c8861d 40%, #e2a84b 60%, transparent)' }} />
 
+          {/* Collapse button — absolute top-right */}
+          {!sidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="absolute top-2 right-2 z-10 w-6 h-6 rounded-md flex items-center justify-center transition-all"
+              style={{ color: '#cbd5e1' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
+              title="Collapse sidebar"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
           {/* ── SIDEBAR SCROLLABLE CONTENT ── */}
           <div className="flex-1 overflow-y-auto py-3 px-2.5" style={{ scrollbarWidth: 'none' }}>
 
@@ -914,23 +924,7 @@ export default function Dashboard() {
               </div>
             ) : (
               /* Expanded: full nav */
-              <div className="space-y-5">
-
-                {/* ── Collapse button row ── */}
-                <div className="flex justify-end px-1">
-                  <button
-                    onClick={() => setSidebarCollapsed(true)}
-                    className="w-7 h-7 rounded-md flex items-center justify-center transition-all"
-                    style={{ color: '#cbd5e1' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
-                    title="Collapse sidebar"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                </div>
+              <div className="space-y-4">
 
                 {/* ── Dashboard item (untuk admin/supervisor) ── */}
                 {canAccessKPI && (
