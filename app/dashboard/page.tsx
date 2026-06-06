@@ -635,8 +635,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CENTER — Global Search + NotificationBar selalu tampil */}
-          <div className="flex-1 flex items-center justify-center gap-3 px-3 md:px-6">
+          {/* CENTER — Global Search di tengah */}
+          <div className="flex-1 flex items-center justify-center px-4 md:px-8">
             {currentUser && (
               <GlobalSearch
                 currentUser={currentUser}
@@ -646,15 +646,14 @@ export default function Dashboard() {
                 }}
               />
             )}
-            {currentUser && (
-              <div className="flex-shrink-0">
-                <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
-              </div>
-            )}
           </div>
 
           {/* RIGHT */}
           <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
+            {/* NotificationBar — selalu di kanan */}
+            {currentUser && (
+              <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
+            )}
             {/* User badge — hanya di main menu (non-sidebar), hidden di mobile kecil */}
             {!showSidebar && (
               <div className="hidden md:flex items-center gap-2.5 px-4 py-2 rounded-xl border border-slate-200/80 bg-white/70 backdrop-blur-sm">
