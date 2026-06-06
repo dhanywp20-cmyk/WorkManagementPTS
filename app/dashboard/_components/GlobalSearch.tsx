@@ -325,8 +325,9 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
 
   const handleSelect = (r: SearchResult) => {
     if (r.url) {
-      if (onNavigate) onNavigate(r.url, query, r.type);
-      else window.location.href = r.url;
+      const destUrl = query.trim() ? `${r.url}?q=${encodeURIComponent(query.trim())}` : r.url;
+      if (onNavigate) onNavigate(destUrl, query, r.type);
+      else window.location.href = destUrl;
     }
     setOpen(false);
   };
@@ -352,7 +353,6 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[12vh] px-4"
-      style={{ background: 'rgba(0,0,0,0.15)' }}
       onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}>
 
       <div className="w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
