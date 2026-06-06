@@ -612,7 +612,7 @@ export default function Dashboard() {
 
   // ── SHARED HEADER JSX ──
   const renderHeader = (withBackBtn = false) => (
-    <div className="bg-white/80 backdrop-blur-md shadow-md border-b border-slate-200/70" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 9999 }}>
+    <div className="bg-white/80 backdrop-blur-md shadow-md border-b border-slate-200/70 flex-shrink-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 50 }}>
       <div className="w-full px-3 md:px-4 py-3 md:py-4">
         <div className="flex items-center justify-between gap-2 md:gap-4">
           {/* LEFT */}
@@ -853,52 +853,6 @@ export default function Dashboard() {
           {/* Top accent line */}
           <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #c8861d 40%, #e2a84b 60%, transparent)' }} />
 
-          {/* ── SIDEBAR HEADER — Main Menu nav ── */}
-          <div
-            className={`flex items-center flex-shrink-0 ${sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-3 py-2.5 gap-2'}`}
-            style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
-          >
-            {!sidebarCollapsed && (
-              <>
-                <div className="w-7 h-7 bg-gradient-to-br from-rose-600 to-rose-700 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-700 truncate leading-tight">Work Management</p>
-                  <p className="text-[9px] font-bold truncate" style={{ color: '#c8861d' }}>PTS Portal</p>
-                </div>
-                <button
-                  onClick={() => setSidebarCollapsed(true)}
-                  className="w-7 h-7 rounded-md flex items-center justify-center transition-all flex-shrink-0"
-                  style={{ color: '#cbd5e1' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
-                  title="Collapse sidebar"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
-                  </svg>
-                </button>
-              </>
-            )}
-            {sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                style={{ color: '#94a3b8' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#334155'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8'; }}
-                title="Main Menu"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-            )}
-          </div>
-
           {/* ── SIDEBAR SCROLLABLE CONTENT ── */}
           <div className="flex-1 overflow-y-auto py-3 px-2.5" style={{ scrollbarWidth: 'none' }}>
 
@@ -909,7 +863,19 @@ export default function Dashboard() {
             ) : sidebarCollapsed ? (
               /* Collapsed: icon-only */
               <div className="space-y-1">
-                {/* Dashboard icon - collapsed */}
+                {/* Expand button - top */}
+                <button
+                  onClick={() => setSidebarCollapsed(false)}
+                  className="w-full h-9 rounded-lg flex items-center justify-center transition-all mb-1"
+                  style={{ color: '#94a3b8' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#334155'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8'; }}
+                  title="Main Menu"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </button>
                 {canAccessKPI && (
                   <button
                     onClick={() => { setShowDashboardPanel(true); setShowTicketing(false); setIframeUrl(null); setIframeLoading(true); }}
@@ -948,6 +914,22 @@ export default function Dashboard() {
             ) : (
               /* Expanded: full nav */
               <div className="space-y-5">
+
+                {/* ── Collapse button row ── */}
+                <div className="flex justify-end px-1">
+                  <button
+                    onClick={() => setSidebarCollapsed(true)}
+                    className="w-7 h-7 rounded-md flex items-center justify-center transition-all"
+                    style={{ color: '#cbd5e1' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
+                    title="Collapse sidebar"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                </div>
 
                 {/* ── Dashboard item (untuk admin/supervisor) ── */}
                 {canAccessKPI && (
