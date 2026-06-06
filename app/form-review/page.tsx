@@ -1351,7 +1351,7 @@ export default function FormReviewPage() {
 
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from { opacity:0; transform:translateY(14px); }
           to   { opacity:1; transform:translateY(0); }
