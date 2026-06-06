@@ -615,7 +615,7 @@ export default function Dashboard() {
     <div className="bg-white/80 backdrop-blur-md shadow-md flex-shrink-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 50 }}>
       <div className="w-full px-3 md:px-4 py-3 md:py-3.5">
         <div className="flex items-center justify-between gap-2 md:gap-4">
-          {/* LEFT: Logo + Global Search */}
+          {/* LEFT: Logo */}
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             <div className="w-9 h-9 md:w-12 md:h-12 bg-gradient-to-br from-rose-600 to-rose-700 rounded-xl shadow-md flex items-center justify-center flex-shrink-0">
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -633,27 +633,26 @@ export default function Dashboard() {
               </div>
               <p className="text-slate-500 text-[10px] md:text-xs font-medium mt-0.5 hidden sm:block">IndoVisual Professional Tools</p>
             </div>
-            {/* Global Search — di sebelah logo */}
+          </div>
+
+          {/* CENTER — Global Search selalu di tengah */}
+          <div className="flex-1 flex items-center justify-center px-4 md:px-8">
             {currentUser && (
-              <div className="hidden sm:block">
-                <GlobalSearch
-                  currentUser={currentUser}
-                  onNavigate={(url) => {
-                    setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
-                    setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
-                  }}
-                />
+              <GlobalSearch
+                currentUser={currentUser}
+                onNavigate={(url) => {
+                  setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
+                  setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
+                }}
+              />
+            )}
+            {/* Notif bar (main menu only) — di sebelah search */}
+            {!showSidebar && currentUser && (
+              <div className="ml-3 flex-shrink-0">
+                <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
               </div>
             )}
           </div>
-
-          {/* CENTER — hanya di main menu (non-sidebar), notif di tengah */}
-          {!showSidebar && currentUser && (
-            <div className="flex-1 flex items-center justify-center gap-3 px-2 md:px-4">
-              <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
-            </div>
-          )}
-          {showSidebar && <div className="flex-1" />}
 
           {/* RIGHT */}
           <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
