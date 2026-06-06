@@ -339,17 +339,14 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
 
   if (!open) return (
     <button onClick={() => setOpen(true)}
-      className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:shadow-md"
-      style={{ background: 'rgba(15,23,42,0.06)', border: '1.5px solid rgba(15,23,42,0.12)', color: '#475569', minWidth: '200px' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.1)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(15,23,42,0.2)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(15,23,42,0.12)'; }}>
-      <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      className="flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:shadow-md"
+      style={{ background: 'rgba(15,23,42,0.06)', border: '1.5px solid rgba(15,23,42,0.12)', color: '#475569' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.12)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(15,23,42,0.22)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(15,23,42,0.12)'; }}
+      title="Cari platform... (⌘K)">
+      <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
-      <span className="flex-1 text-left text-slate-400">Cari platform...</span>
-      <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(15,23,42,0.07)', color: '#94a3b8' }}>
-        <span>⌘</span><span>K</span>
-      </span>
     </button>
   );
 
