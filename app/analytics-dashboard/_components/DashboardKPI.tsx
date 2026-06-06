@@ -187,7 +187,7 @@ function StatCard({ icon, label, value, sub, color, sparkline, donut, loading }:
 }) {
   return (
     <div className="rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden"
-      style={{ background:'#ffffff', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)' }}>
+      style={{ background:'rgba(255,255,255,0.93)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)' }}>
       <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.06]"
         style={{ background:color, transform:'translate(30%,-30%)' }}/>
       <div className="flex items-start justify-between gap-2">
@@ -948,11 +948,11 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen" style={{ animation:'fadeInUp 0.35s ease forwards' }}>
+    <div className="flex flex-col min-h-screen" style={{ animation:'fadeInUp 0.35s ease forwards', background:'rgba(0,0,0,0.10)' }}>
 
         {/* ── Top bar — sticky menempel di atas seperti Learning Center ── */}
         <div className="flex items-center justify-between gap-4 px-6 py-4 flex-shrink-0 sticky top-0 z-50"
-          style={{ background:'rgba(255,255,255,0.97)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
+          style={{ background:'rgba(255,255,255,0.92)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
