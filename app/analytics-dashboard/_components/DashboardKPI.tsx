@@ -194,11 +194,11 @@ function StatCard({ icon, label, value, sub, color, sparkline, donut, loading }:
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1">
             <span className="text-sm">{icon}</span>
-            <span className="text-sm font-semibold tracking-wide uppercase truncate" style={{ color:'rgba(0,0,0,0.4)' }}>{label}</span>
+            <span className="text-[11px] font-semibold tracking-wide uppercase truncate" style={{ color:'rgba(0,0,0,0.4)' }}>{label}</span>
           </div>
           {loading ? <div className="h-7 w-16 rounded animate-pulse" style={{ background:'rgba(0,0,0,0.08)' }}/> :
             <div className="text-2xl font-black tracking-tight" style={{ color }}>{value}</div>}
-          {sub && <div className="text-sm mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.35)' }}>{sub}</div>}
+          {sub && <div className="text-[11px] mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.35)' }}>{sub}</div>}
         </div>
         <div className="flex flex-col items-end gap-1 flex-shrink-0">
           {donut && <MiniDonut segments={donut.segments}/>}
@@ -261,7 +261,7 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
           <span className="text-sm" style={{ color:'rgba(0,0,0,0.4)' }}>by <b style={{ color:'rgba(0,0,0,0.6)' }}>{entry.actor}</b></span>
           {entry.target && <span className="text-sm truncate max-w-[180px]" style={{ color:'rgba(0,0,0,0.35)' }}>→ {entry.target}</span>}
         </div>
-        {entry.detail && <p className="text-sm mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.3)' }}>{entry.detail}</p>}
+        {entry.detail && <p className="text-[11px] mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.3)' }}>{entry.detail}</p>}
       </div>
     </div>
   );
@@ -914,7 +914,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
         </svg>
         {label && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-black text-slate-700">{label}</span>
+            <span className="text-[11px] font-black text-slate-700">{label}</span>
           </div>
         )}
       </div>
@@ -964,7 +964,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 <span className="text-sm font-bold text-slate-800 leading-tight">{scopeTitle}</span>
                 <ScopeBadge scope={scope}/>
               </div>
-              <span className="text-sm text-slate-400 font-medium">SYNC {lastRefresh.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+              <span className="text-[10px] text-slate-400 font-medium">SYNC {lastRefresh.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
             </div>
           </div>
 
@@ -1001,7 +1001,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-black uppercase tracking-widest text-slate-500">🏪 Piket Showroom</span>
-                    <span className="text-sm text-slate-400">{new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</span>
+                    <span className="text-[10px] text-slate-400">{new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</span>
                   </div>
                   {/* PIC row */}
                   <div className="flex flex-col gap-1.5 mb-2">
@@ -1025,8 +1025,8 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   {!loading&&kpi&&(
                     <div>
                       <div className="flex justify-between mb-1">
-                        <span className="text-sm text-slate-400">Minggu ini</span>
-                        <span className="text-sm font-bold text-slate-600">{kpi.piket.weekFilled}/{kpi.piket.weekTotal} hari · {kpi.piket.kegiatanToday} tamu</span>
+                        <span className="text-[10px] text-slate-400">Minggu ini</span>
+                        <span className="text-[11px] font-bold text-slate-600">{kpi.piket.weekFilled}/{kpi.piket.weekTotal} hari · {kpi.piket.kegiatanToday} tamu</span>
                       </div>
                       <MiniBar value={kpi.piket.weekFilled} max={kpi.piket.weekTotal} color="#10b981" h={5}/>
                       <div className="flex justify-between mt-0.5">
@@ -1041,7 +1041,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-black uppercase tracking-widest text-slate-500">🎫 Ticket</span>
-                    <span className="text-sm text-slate-400">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua'}</span>
+                    <span className="text-[10px] text-slate-400">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua'}</span>
                   </div>
                   {/* Mini stat row */}
                   <div className="grid grid-cols-4 gap-1 mb-2">
@@ -1067,13 +1067,13 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                         {kpi.tickets.byStatus.map(s=>(
                           <div key={s.status} className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:s.color}}/>
-                            <span className="text-sm text-slate-500 flex-1 truncate">{s.status}</span>
+                            <span className="text-[11px] text-slate-500 flex-1 truncate">{s.status}</span>
                             <MiniBar value={s.count} max={kpi.tickets.total} color={s.color} h={3}/>
-                            <span className="text-sm font-bold text-slate-700 w-5 text-right">{s.count}</span>
+                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{s.count}</span>
                           </div>
                         ))}
                         <div className="flex justify-end mt-1">
-                          <span className="text-sm text-slate-400">Avg resolusi </span>
+                          <span className="text-[10px] text-slate-400">Avg resolusi </span>
                           <span className="text-sm font-black text-rose-500 ml-1">{kpi.tickets.avgResolutionDays} hari</span>
                         </div>
                       </div>
@@ -1116,12 +1116,12 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:c.color}}/>
                             <span className="text-sm text-slate-500 w-20 truncate">{c.cat}</span>
                             <MiniBar value={c.count} max={kpi.reminders.total} color={c.color} h={3}/>
-                            <span className="text-sm font-bold text-slate-700 w-5 text-right">{c.count}</span>
+                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{c.count}</span>
                           </div>
                         ))}
                         {/* Done rate */}
                         <div className="flex justify-end mt-1">
-                          <span className="text-sm text-slate-400">Done rate </span>
+                          <span className="text-[10px] text-slate-400">Done rate </span>
                           <span className="text-sm font-black text-emerald-600 ml-1">
                             {kpi.reminders.total>0?Math.round((kpi.reminders.done/kpi.reminders.total)*100):0}%
                           </span>
@@ -1135,7 +1135,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-black uppercase tracking-widest text-slate-500">🚚 Unit Movement</span>
-                    <span className="text-sm text-slate-400">Bulan ini</span>
+                    <span className="text-[10px] text-slate-400">Bulan ini</span>
                   </div>
                   {/* Unit stats */}
                   <div className="grid grid-cols-3 gap-1 mb-2">
@@ -1162,15 +1162,15 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       <div className="flex-1 space-y-0.5">
                         <div className="flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-amber-400"/>
-                          <span className="text-sm text-slate-500 flex-1">Keluar</span>
+                          <span className="text-[11px] text-slate-500 flex-1">Keluar</span>
                           <MiniBar value={kpi.units.keluarThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#f59e0b" h={3}/>
-                          <span className="text-sm font-bold text-slate-700 w-5 text-right">{kpi.units.keluarThisMonth}</span>
+                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.keluarThisMonth}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
-                          <span className="text-sm text-slate-500 flex-1">Masuk</span>
+                          <span className="text-[11px] text-slate-500 flex-1">Masuk</span>
                           <MiniBar value={kpi.units.masukThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#10b981" h={3}/>
-                          <span className="text-sm font-bold text-slate-700 w-5 text-right">{kpi.units.masukThisMonth}</span>
+                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.masukThisMonth}</span>
                         </div>
                       </div>
                     </div>
@@ -1189,9 +1189,9 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                               <div key={r.role} className="flex items-center gap-1">
                                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                   style={{background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
-                                <span className="text-sm text-slate-500 flex-1 uppercase">{r.role}</span>
+                                <span className="text-[11px] text-slate-500 flex-1 uppercase">{r.role}</span>
                                 <MiniBar value={r.count} max={kpi.users.total} color={['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]} h={3}/>
-                                <span className="text-sm font-bold text-slate-700 w-5 text-right">{r.count}</span>
+                                <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{r.count}</span>
                               </div>
                             ))}
                           </div>
@@ -1236,7 +1236,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             size={52} strokeWidth={8}
                             label={`${kpi.learning.totalSessions>0?Math.round((kpi.learning.completedSessions/kpi.learning.totalSessions)*100):0}%`}/>
                           <span className="text-sm font-bold text-slate-500">Pass Rate</span>
-                          <span className="text-sm text-slate-400">{kpi.learning.completedSessions}✓ · {kpi.learning.totalSessions-kpi.learning.completedSessions}✗</span>
+                          <span className="text-[10px] text-slate-400">{kpi.learning.completedSessions}✓ · {kpi.learning.totalSessions-kpi.learning.completedSessions}✗</span>
                         </div>
                         {/* Avg score donut */}
                         <div className="flex flex-col items-center justify-center gap-1">
@@ -1247,7 +1247,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             ]}
                             size={52} strokeWidth={8} label={`${kpi.learning.avgScore}`}/>
                           <span className="text-sm font-bold text-slate-500">Avg Score</span>
-                          <span className="text-sm text-slate-400">{kpi.learning.totalParticipants} peserta</span>
+                          <span className="text-[10px] text-slate-400">{kpi.learning.totalParticipants} peserta</span>
                         </div>
                       </>
                     )}
@@ -1740,13 +1740,13 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                         {member.name.charAt(0)}
                       </div>
                       {/* Name */}
-                      <div className="text-sm font-bold text-slate-700 text-center leading-tight w-full truncate"
+                      <div className="text-[10px] font-bold text-slate-700 text-center leading-tight w-full truncate"
                         title={member.name}>{member.name.split(' ')[0]}</div>
                       {/* KPI Score */}
                       <div className="text-sm font-black leading-none" style={{color:kpiColor}}>
                         {noData ? '—' : `${finalKPI}%`}
                       </div>
-                      <div className="text-sm font-bold uppercase tracking-wide" style={{color:kpiColor}}>{kpiLabel}</div>
+                      <div className="text-[8px] font-bold uppercase tracking-wide" style={{color:kpiColor}}>{kpiLabel}</div>
                       {/* Sparkline tickets trend */}
                       {spark.some(v=>v>0) && (
                         <svg width={sparkW} height={sparkH} viewBox={`0 0 ${sparkW} ${sparkH}`} style={{overflow:'visible'}}>
@@ -1777,7 +1777,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-100" style={{background:`${color}08`}}>
                         <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-sm font-black flex-shrink-0" style={{background:color}}>{abbr}</div>
                         <span className="text-sm font-black text-slate-600 uppercase tracking-wider">{label}</span>
-                        <span className="text-sm text-slate-400">{members.length} anggota</span>
+                        <span className="text-[10px] text-slate-400">{members.length} anggota</span>
                         {avg!==null && (
                           <span className="ml-auto text-sm font-black" style={{color:avgC}}>avg {avg}%</span>
                         )}
@@ -1939,10 +1939,10 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             {/* Ticketing — 20% */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#ef444440', background:'#fef2f2'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-sm font-bold text-red-600 uppercase tracking-wider">🎫 Ticketing</div>
-                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:tickScore>=1?'#d1fae5':'#fee2e2',color:tickScore>=1?'#065f46':'#991b1b'}}>{Math.round(tickScore*_s.ticketOverdueWeight*100)}/{Math.round(_s.ticketOverdueWeight*100)}% bobot</span>
+                                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider">🎫 Ticketing</div>
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:tickScore>=1?'#d1fae5':'#fee2e2',color:tickScore>=1?'#065f46':'#991b1b'}}>{Math.round(tickScore*_s.ticketOverdueWeight*100)}/{Math.round(_s.ticketOverdueWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-sm text-slate-600">
+                              <div className="space-y-1.5 text-[11px] text-slate-600">
                                 <div className="flex justify-between"><span>Handled</span><b className="text-slate-800">{member.ticketsHandled}</b></div>
                                 <div className="flex justify-between"><span>Solved</span><b className="text-emerald-600">{member.ticketsSolved}</b></div>
                                 <div className="flex justify-between"><span>Overdue</span>
@@ -1962,11 +1962,11 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             {/* BAST & Demo — 30% (Form Review) */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#f59e0b40', background:'#fffbeb'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-sm font-bold text-amber-600 uppercase tracking-wider">⭐ BAST &amp; Demo</div>
-                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:bastScore>=1?'#d1fae5':'#fee2e2',color:bastScore>=1?'#065f46':'#991b1b'}}>{Math.round(bastScore*_s.bastWeight*100)}/{Math.round(_s.bastWeight*100)}% bobot</span>
+                                <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">⭐ BAST &amp; Demo</div>
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:bastScore>=1?'#d1fae5':'#fee2e2',color:bastScore>=1?'#065f46':'#991b1b'}}>{Math.round(bastScore*_s.bastWeight*100)}/{Math.round(_s.bastWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-sm text-slate-600">
-                                <div className="text-sm text-slate-400 mb-1">Sumber: Form Review BAST & Demo (bintang &lt;3)</div>
+                              <div className="space-y-1.5 text-[11px] text-slate-600">
+                                <div className="text-[10px] text-slate-400 mb-1">Sumber: Form Review BAST & Demo (bintang &lt;3)</div>
                                 <div className="flex justify-between"><span>Total Review</span><b className="text-slate-800">{member.formReviewTotal}</b></div>
                                 <div className="flex justify-between"><span>Komplain (★1-2)</span>
                                   <b className={member.formReviewLowRating > 0 ? 'text-red-600' : 'text-emerald-600'}>
@@ -1984,11 +1984,11 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             {/* Tech Knowledge — 40% (LC) */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#6366f140', background:'#f5f3ff'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-sm font-bold text-violet-600 uppercase tracking-wider">🎓 Learning Center</div>
-                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:lcScore>=1?'#d1fae5':'#fee2e2',color:lcScore>=1?'#065f46':'#991b1b'}}>{Math.round(lcScore*_s.lcWeight*100)}/{Math.round(_s.lcWeight*100)}% bobot</span>
+                                <div className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">🎓 Learning Center</div>
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:lcScore>=1?'#d1fae5':'#fee2e2',color:lcScore>=1?'#065f46':'#991b1b'}}>{Math.round(lcScore*_s.lcWeight*100)}/{Math.round(_s.lcWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-sm text-slate-600">
-                                <div className="text-sm text-slate-400 mb-1">Sumber: Learning Center (nilai penuh jika tidak ada &lt;{_s.lcMinScore})</div>
+                              <div className="space-y-1.5 text-[11px] text-slate-600">
+                                <div className="text-[10px] text-slate-400 mb-1">Sumber: Learning Center (nilai penuh jika tidak ada &lt;{_s.lcMinScore})</div>
                                 <div className="flex justify-between"><span>Total Attempt</span><b className="text-slate-800">{member.lcAttempts}</b></div>
                                 <div className="flex justify-between"><span>Avg Score</span><b className={member.lcAvgScore < _s.lcMinScore ? 'text-red-600' : 'text-emerald-600'}>{member.lcAvgScore || '—'}</b></div>
                                 <div className="flex justify-between"><span>Lulus</span><b className="text-emerald-600">{member.lcPassed}</b></div>
@@ -2005,7 +2005,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
                           </div>
                           {/* Reminder & Piket info */}
-                          <div className="mt-2 bg-slate-50 rounded-xl border border-slate-100 p-3 text-sm text-slate-600 flex flex-wrap gap-x-5 gap-y-1">
+                          <div className="mt-2 bg-slate-50 rounded-xl border border-slate-100 p-3 text-[11px] text-slate-600 flex flex-wrap gap-x-5 gap-y-1">
                             <span>📅 Reminder: <b className="text-slate-800">{member.remindersDone}</b>/{member.remindersAssigned} done{member.remindersOverdue>0?<span className="text-red-500"> · {member.remindersOverdue} overdue</span>:null}</span>
                             <span>🏪 Piket: <b className="text-slate-800">{member.piketFilled}</b> hari bertugas</span>
                           </div>
@@ -2013,18 +2013,18 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
                         {/* ── R&D Tech Note — Otomatis dari platform Tech Note ── */}
                         <div>
-                          <div className="text-sm font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&amp;D Tech Note (Otomatis dari Platform)</div>
+                          <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&amp;D Tech Note (Otomatis dari Platform)</div>
                           <div className="rounded-xl border p-3" style={{borderColor:'#ec489940', background:'#fdf4ff'}}>
                             <div className="flex items-center justify-between mb-2">
-                              <div className="text-sm font-bold text-pink-600 uppercase tracking-wider">📝 R&amp;D Tech Note</div>
-                              <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:rndScore>=1?'#d1fae5':'#fee2e2',color:rndScore>=1?'#065f46':'#991b1b'}}>{Math.round(rndScore*_s.rndWeight*100)}/{Math.round(_s.rndWeight*100)}% bobot</span>
+                              <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider">📝 R&amp;D Tech Note</div>
+                              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:rndScore>=1?'#d1fae5':'#fee2e2',color:rndScore>=1?'#065f46':'#991b1b'}}>{Math.round(rndScore*_s.rndWeight*100)}/{Math.round(_s.rndWeight*100)}% bobot</span>
                             </div>
                             <div className="text-sm text-slate-500 mb-3">
                               Target: <b className="text-slate-700">{_s.rndTarget} Tech Note approved</b> per tahun · Data otomatis dari platform Tech Note
                             </div>
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl font-black" style={{color: rndScore>=1?'#059669':'#dc2626'}}>{member.techNotesApproved}</span>
-                              <span className="text-sm text-slate-400 font-medium">/ {_s.rndTarget}</span>
+                              <span className="text-[10px] text-slate-400 font-medium">/ {_s.rndTarget}</span>
                               <div className="h-2 flex-1 rounded-full bg-pink-100 overflow-hidden">
                                 <div className="h-full rounded-full transition-all duration-500" style={{width:`${Math.min(100,rndScore*100)}%`, background: rndScore>=1?'#10b981':'#f472b6'}}/>
                               </div>
@@ -2065,7 +2065,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Handler */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🎫 Ticket Open per Handler</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🎫 Ticket Open per Handler</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byHandler.length
                       ? <HBarChart data={kpi.tickets.byHandler.map(h=>({label:h.name.split(' ')[0],value:h.count}))} color="#ef4444"/>
@@ -2073,7 +2073,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 </div>
                 {/* Divisi */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🏢 Ticket per Divisi</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🏢 Ticket per Divisi</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byDivision.length
                       ? <HBarChart data={kpi.tickets.byDivision.map(d=>({label:d.div,value:d.count}))} color="#6366f1"/>
@@ -2081,7 +2081,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 </div>
                 {/* Product */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">📦 Ticket per Produk</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">📦 Ticket per Produk</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byProduct?.length
                       ? <HBarChart data={kpi.tickets.byProduct.map(p=>({label:p.product,value:p.count}))} color="#0891b2"/>
@@ -2092,7 +2092,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
               {/* ── ROW B: Reminder Kategori + Reminder per Produk ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🗂️ Reminder per Kategori</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🗂️ Reminder per Kategori</h3>
                   {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
                     <div className="flex items-center gap-6">
                       <div className="flex-shrink-0">
@@ -2120,7 +2120,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 </div>
                 {/* Reminder per Produk */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🏷️ Reminder per Produk</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🏷️ Reminder per Produk</h3>
                   {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
                     (kpi?.reminders.byProduct??[]).length === 0
                       ? <p className="text-sm text-center py-8 text-slate-400">Tidak ada data produk</p>
@@ -2130,7 +2130,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             return (
                               <div key={p.product} className="flex items-start gap-3">
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-bold text-slate-700 truncate leading-snug">{p.product}</div>
+                                  <div className="text-[12px] font-bold text-slate-700 truncate leading-snug">{p.product}</div>
                                   <div className="flex flex-wrap gap-1.5 mt-1">
                                     {p.byCategory.map(c=>(
                                       <span key={c.cat} className="text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -2151,7 +2151,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
               {/* Performa Resolusi */}
               <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">⚡ Ringkasan Performa</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">⚡ Ringkasan Performa</h3>
                 {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:(
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {[
@@ -2165,7 +2165,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       <div key={m.label} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
                         <span className="text-xl">{m.icon}</span>
                         <div>
-                          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{m.label}</div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{m.label}</div>
                           <div className="text-sm font-black" style={{ color:m.color }}>{m.value}</div>
                         </div>
                       </div>
@@ -2315,7 +2315,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                             <div key={d.label} className="px-4 py-3">
                               <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-0.5">{d.label}</div>
                               <div className="text-xl font-black" style={{color:d.c}}>{d.count}</div>
-                              <div className="text-sm text-slate-400">orang</div>
+                              <div className="text-[10px] text-slate-400">orang</div>
                             </div>
                           ))}
                         </div>
@@ -2356,7 +2356,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                                     </div>
                                     <div>
                                       <div className="font-semibold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">{m.name}</div>
-                                      <div className="text-sm text-slate-400">{m.jabatan}</div>
+                                      <div className="text-[10px] text-slate-400">{m.jabatan}</div>
                                     </div>
                                   </div>
                                 </td>
@@ -2452,7 +2452,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                                   </div>
                                   <div>
                                     <div className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">{snap.period_label}</div>
-                                    <div className="text-sm text-slate-400">
+                                    <div className="text-[10px] text-slate-400">
                                       {MN[(snap.start_month??1)-1]} – {MN[(snap.end_month??12)-1]} {snap.year}
                                     </div>
                                   </div>
@@ -2462,10 +2462,10 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                                 <div className="text-sm text-slate-500">
                                   {new Date(snap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
                                 </div>
-                                <div className="text-sm text-slate-400">{snap.created_by}</div>
+                                <div className="text-[10px] text-slate-400">{snap.created_by}</div>
                               </td>
                               <td className="px-3 py-3.5 text-center">
-                                <span className="text-sm font-bold text-slate-700">{snap.members_json.length}</span>
+                                <span className="text-[11px] font-bold text-slate-700">{snap.members_json.length}</span>
                               </td>
                               <td className="px-3 py-3.5 text-center">
                                 <div className="inline-flex flex-col items-center">
@@ -2560,7 +2560,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   <div className="p-4 space-y-3">
 
                     {/* Info snapshot frozen */}
-                    <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-700">
+                    <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-700">
                       <span className="text-base">🔒</span>
                       <span>Data ini adalah <b>snapshot yang dikunci</b> pada periode <b>{snap.period_label}</b>. Nilai tidak akan berubah meski data platform terus update — ini adalah catatan final periode tersebut.</span>
                     </div>
@@ -2588,7 +2588,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                     {/* Predikat final */}
                     <div className="flex items-center justify-between px-4 py-3 rounded-xl border"
                       style={{background:`${c}08`,borderColor:`${c}30`}}>
-                      <span className="text-sm font-bold text-slate-600">KPI Final</span>
+                      <span className="text-[11px] font-bold text-slate-600">KPI Final</span>
                       <div className="flex items-center gap-3">
                         <span className="text-2xl font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</span>
                         <span className="text-sm font-bold px-2.5 py-1 rounded-full"
@@ -2600,7 +2600,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
                     {/* Detail per komponen */}
                     <div>
-                      <div className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">📊 Detail Komponen (Data Saat Snapshot)</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">📊 Detail Komponen (Data Saat Snapshot)</div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {/* Ticketing */}
                         <div className="rounded-xl border p-3" style={{borderColor:'#ef444440',background:'#fef2f2'}}>
@@ -2630,7 +2630,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                         </div>
                         {/* R&D Tech Note */}
                         <div className="rounded-xl border p-3" style={{borderColor:'#ec489940',background:'#fdf4ff'}}>
-                          <div className="text-sm font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&D Tech Note — Skor {m.rndScore}%</div>
+                          <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&D Tech Note — Skor {m.rndScore}%</div>
                           <div className="space-y-1 text-sm text-slate-600">
                             <div className="flex justify-between"><span>Tech Note Approved</span><b className="text-pink-700">{m.techNotesApproved??0}</b></div>
                           </div>
@@ -2677,7 +2677,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                     {allMembers.length === 0 ? (
                       <div className="flex flex-col items-center gap-2 py-10">
                         <span className="text-3xl opacity-20">📊</span>
-                        <p className="text-sm text-slate-400">Buka tab KPI Team dulu untuk memuat data anggota</p>
+                        <p className="text-[10px] text-slate-400">Buka tab KPI Team dulu untuk memuat data anggota</p>
                         <button onClick={()=>{ setTab('kpi_team'); setTimeout(()=>fetchKPITeam(),100); }}
                           className="mt-2 px-4 py-2 rounded-lg text-sm font-bold text-white"
                           style={{background:'linear-gradient(135deg,#6366f1,#4f46e5)'}}>
@@ -2697,7 +2697,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                                 <div className="w-[42%] rounded-t transition-all duration-700" title={`LC: ${l}`}
                                   style={{height:hL||2, background:'#6366f1', opacity:l?0.85:0.12}}/>
                               </div>
-                              <span className="text-sm text-slate-400">{m}</span>
+                              <span className="text-[10px] text-slate-400">{m}</span>
                             </div>
                           );
                         })}
