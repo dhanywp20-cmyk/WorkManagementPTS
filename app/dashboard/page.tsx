@@ -727,7 +727,7 @@ export default function Dashboard() {
   // ── VIEW: NO SIDEBAR (main dashboard) ──
   if (!showSidebar) {
     return (
-      <div className="flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(/IVP_Background.png)', height: '100dvh', overflow: 'hidden' }}>
+      <div className="flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(/IVP_Background.png)', height: '100dvh' }}>
         {renderModals()}
         {/* ── Onboarding Tour ── */}
         {currentUser && (
@@ -834,7 +834,7 @@ export default function Dashboard() {
 
   // ── VIEW: SIDEBAR ──
   return (
-    <div className="flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(/IVP_Background.png)', height: '100dvh', overflow: 'hidden' }}>
+    <div className="flex flex-col bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(/IVP_Background.png)', height: '100dvh' }}>
       {renderModals()}
       {renderHeader()}
 
