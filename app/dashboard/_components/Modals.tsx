@@ -2141,7 +2141,7 @@ export function AdminPanelModal({ initialTab, onClose }: AdminPanelModalProps) {
   const activeNav = navItems.find(n => n.key === activeSection)!;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm pt-16 px-4 pb-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex overflow-hidden border border-slate-200">
 
         {/* ── LEFT SIDEBAR ── */}
