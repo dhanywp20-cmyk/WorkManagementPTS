@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, supabaseServices } from "@/lib/supabase";
 import { setSession, clearSession, getSession } from "@/lib/auth";
 
@@ -24,6 +24,7 @@ import {
 
 export default function TicketingSystem() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const ticketListRef = useRef<HTMLDivElement>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
@@ -83,6 +84,12 @@ export default function TicketingSystem() {
   const [filterYear, setFilterYear] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState("All");
   const [selectedHandlerTeam, setSelectedHandlerTeam] = useState<"PTS" | "Services">("PTS");
+
+  // ── Auto-apply filter dari Global Search (?q=...) ──
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) setSearchProject(q);
+  }, [searchParams]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<Ticket[]>([]);
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
