@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { setSession, clearSession, getSession } from '@/lib/auth';
 import { MiniPieChart, LoadingScreen, ViewIconBtn, DeleteIconBtn, ActionGroup } from '@/components/shared';
@@ -18,6 +19,7 @@ import {
 } from './_components/Modals';
 
 function FormRequireProject({ currentUser }: { currentUser: User }) {
+  const searchParams = useSearchParams();
   const [appReady, setAppReady] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showNewFormModal, setShowNewFormModal] = useState(false);
@@ -47,6 +49,12 @@ function FormRequireProject({ currentUser }: { currentUser: User }) {
   const [searchQuery, setSearchQuery] = useState(() => {
     try { return sessionStorage.getItem('frp_searchQuery') || ''; } catch { return ''; }
   });
+
+  // ── Auto-apply filter dari Global Search (?q=...) ──
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+  }, [searchParams]);
   const [searchSales, setSearchSales] = useState(() => {
     try { return sessionStorage.getItem('frp_searchSales') || ''; } catch { return ''; }
   });
@@ -3047,5 +3055,9 @@ export default function Page() {
     </div>
   );
 
-  return <FormRequireProject currentUser={currentUser} />;
+  return (
+    <Suspense>
+      <FormRequireProject currentUser={currentUser} />
+    </Suspense>
+  );
 }
