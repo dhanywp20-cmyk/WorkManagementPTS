@@ -635,8 +635,12 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CENTER — Global Search di tengah */}
-          <div className="flex-1 flex items-center justify-center px-4 md:px-8">
+          {/* CENTER — spacer */}
+          <div className="flex-1" />
+
+          {/* RIGHT */}
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            {/* Global Search icon — sebelah kiri notif */}
             {currentUser && (
               <GlobalSearch
                 currentUser={currentUser}
@@ -646,10 +650,6 @@ export default function Dashboard() {
                 }}
               />
             )}
-          </div>
-
-          {/* RIGHT */}
-          <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
             {/* NotificationBar — selalu di kanan */}
             {currentUser && (
               <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
