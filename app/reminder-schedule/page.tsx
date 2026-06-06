@@ -1066,12 +1066,12 @@ jangan lupa peralatan & Semangat💪🏼
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{
+    <div className="h-screen overflow-hidden flex flex-col relative" style={{
       backgroundImage: `url('/IVP_Background.png')`,
       backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
     }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.08)' }} />
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
 
         {/* Toast */}
         {toast && (
@@ -2144,9 +2144,7 @@ jangan lupa peralatan & Semangat💪🏼
           </div>
         </header>
 
-        <div className="flex-1 max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
-
-          {/* ─── LIST VIEW ── */}
+        <div className="flex-1 overflow-y-auto max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
           {view === 'list' && (
             <>
               {/* ── Stat cards (clickable filter) ── */}
