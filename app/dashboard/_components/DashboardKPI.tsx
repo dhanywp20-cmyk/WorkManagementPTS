@@ -572,7 +572,9 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
       const effectiveEnd = `${year}-${pad(endMonth)}-${endDay}`;
 
       // Get team members
-      let membersQ = supabase.from('users').select('id,full_name,jabatan,team_type,role');
+      let membersQ = supabase.from('users').select('id,full_name,jabatan,team_type,role,kpi_enabled');
+      // Hanya tampilkan member yang diaktifkan dalam KPI Roster
+      membersQ = membersQ.eq('kpi_enabled', true);
       if (scope.kind === 'pts_sup') {
         membersQ = membersQ.eq('role', 'team').eq('team_type', scope.ptsTeamType ?? '');
       } else if (scope.kind === 'admin') {
