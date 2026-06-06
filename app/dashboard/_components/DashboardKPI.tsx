@@ -1279,6 +1279,24 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 <SectionPill icon="👥">KPI Team {scope.kind==='pts_sup'?scope.ptsTeamType:scope.kind==='team'?currentUser.team_type??'':'PTS IVP & MLDS'}</SectionPill>
                 <div className="ml-auto flex items-center gap-2 flex-wrap">
               {/* Filter Periode — hidden for regular team members */}
+                  {/* Badge periode untuk team member (read-only) */}
+                  {scope.kind === 'team' && (() => {
+                    const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+                    const startM = kpiTeam.filterStartMonth;
+                    const duration = kpiTeam.filterPeriod === '6m' ? 6 : 12;
+                    const endM = Math.min(startM + duration - 1, 12);
+                    const periodLabel = `${MONTHS_SHORT[startM-1]}–${MONTHS_SHORT[endM-1]} ${kpiTeam.filterYear}`;
+                    return (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                          📅 Periode: {periodLabel}
+                        </span>
+                        <span className="text-[11px] font-medium px-2.5 py-1.5 rounded-lg bg-slate-50 text-slate-500 border border-slate-200 whitespace-nowrap">
+                          {kpiTeam.filterPeriod === '6m' ? '6 Bulan' : '1 Tahun'}
+                        </span>
+                      </div>
+                    );
+                  })()}
                   {scope.kind !== 'team' && (() => {
                     const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
                     const startM = kpiTeam.filterStartMonth;
