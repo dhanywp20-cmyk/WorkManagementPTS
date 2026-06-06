@@ -523,7 +523,7 @@ export default function PiketShowroomPage() {
       {viewDetail&&<ViewDetailModal row={viewDetail} kegiatanList={kegiatanList} currentUser={currentUser} onClose={()=>setViewDetail(null)} onEdit={()=>{setViewDetail(null);setFillDetail(viewDetail);}}/>}
       {showCalendar&&<MiniCalendarPopup allRows={allRows} onClose={()=>setShowCalendar(false)}/>}
 
-      <style jsx>{`
+      <style>{`
         @keyframes scale-in{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
         select option{background:#ffffff;color:#1e293b}
       `}</style>
