@@ -53,68 +53,57 @@ function StatusBadge({ status }: { status: TechNote['status'] }) {
 }
 
 // ─── KPI Summary ──────────────────────────────────────────────────────────────
+// Admin/supervisor: tampilkan ringkasan semua tim (tanpa menyebut target per orang)
+// Team/user: TIDAK tampilkan progress pribadi & target KKM — cukup info singkat
 function TechNoteKPISummary({ technotes, currentUser, year }:
   { technotes: TechNote[]; currentUser: User; year: number }) {
-  const isTeam = currentUser.role === 'team' || currentUser.role === 'team_pts';
+  const isAdmin = ['admin','superadmin','supervisor'].includes(currentUser.role);
 
-  if (isTeam) {
-    const my = technotes.filter(t => t.author_id === currentUser.id);
-    const approved = my.filter(t => t.status === 'approved').length;
-    const pending  = my.filter(t => t.status === 'pending').length;
-    const pct = Math.min(100, Math.round((approved / KKM_REQUIRED) * 100));
-    const met = approved >= KKM_REQUIRED;
+  if (isAdmin) {
+    // Admin: ringkasan global — tanpa menyebut "Target: X/orang"
+    const totalApproved = technotes.filter(t => t.status === 'approved').length;
+    const totalPending  = technotes.filter(t => t.status === 'pending').length;
     return (
-      <div className="rounded-2xl p-4 mb-5 shadow-sm"
-        style={{ background: '#ffffff', border: `1.5px solid ${met ? '#d1fae5' : '#fce7f3'}`, borderLeft: `4px solid ${met ? '#10b981' : '#ec4899'}` }}>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
-              📝 KPI R&D Tech Note {year} — Progres Saya
+      <div className="rounded-2xl p-4 mb-5 shadow-sm" style={{ background: '#ffffff', border: '1.5px solid #fce7f3', borderLeft: '4px solid #ec4899' }}>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-3">
+          📝 Ringkasan KPI R&D Tech Note {year} — Semua Tim
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label:'Total Approved', value: totalApproved, color:'#059669', bg:'#ffffff', border:'#d1fae5' },
+            { label:'Pending Review', value: totalPending,  color:'#d97706', bg:'#ffffff', border:'#fef3c7' },
+            { label:'Total Submissions', value: technotes.length, color:'#7c3aed', bg:'#ffffff', border:'#ede9fe' },
+          ].map(c => (
+            <div key={c.label} className="rounded-xl p-3 text-center border shadow-sm"
+              style={{ background: c.bg, borderColor: c.border }}>
+              <div className="text-2xl font-black" style={{ color: c.color }}>{c.value}</div>
+              <div className="text-[11px] text-slate-500 font-medium mt-0.5">{c.label}</div>
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">Target KKM: <b className="text-slate-700">{KKM_REQUIRED} Tech Note approved</b> per tahun (bobot 10%)</div>
-          </div>
-          <span className="text-[11px] font-black px-3 py-1 rounded-full text-white"
-            style={{ background: met ? '#059669' : pct >= 50 ? '#92400e' : '#9b1c1c' }}>
-            {met ? '✅ KKM Terpenuhi' : `${pct}% — ${KKM_REQUIRED - approved} lagi`}
-          </span>
+          ))}
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-3 rounded-full overflow-hidden bg-gray-200">
-            <div className="h-full rounded-full transition-all duration-700"
-              style={{ width:`${pct}%`, background: met
-                ? 'linear-gradient(90deg,#10b981,#34d399)'
-                : pct >= 50 ? 'linear-gradient(90deg,#f59e0b,#fcd34d)'
-                : 'linear-gradient(90deg,#ec4899,#f9a8d4)' }} />
-          </div>
-          <div className="shrink-0 text-right">
-            <span className="text-2xl font-black" style={{ color: met ? '#059669' : '#ec4899' }}>{approved}</span>
-            <span className="text-sm text-slate-400 font-medium"> / {KKM_REQUIRED}</span>
-          </div>
-        </div>
-        {pending > 0 && <div className="mt-2 text-[11px] text-amber-600 font-semibold">⏳ {pending} sedang menunggu review</div>}
       </div>
     );
   }
 
-  const totalApproved = technotes.filter(t => t.status === 'approved').length;
-  const totalPending  = technotes.filter(t => t.status === 'pending').length;
+  // Team/user biasa: tidak tampilkan progress pribadi & target KKM
+  // Hanya tampilkan jumlah note yang visible bagi mereka
+  const approvedCount = technotes.filter(t => t.status === 'approved').length;
+  const myPendingCount = technotes.filter(t => t.author_id === currentUser.id && t.status === 'pending').length;
   return (
-    <div className="rounded-2xl p-4 mb-5 shadow-sm" style={{ background: '#ffffff', border: '1.5px solid #fce7f3', borderLeft: '4px solid #ec4899' }}>
-      <div className="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-3">
-        📝 Ringkasan KPI R&D Tech Note {year} — Semua Tim (Target: {KKM_REQUIRED}/orang)
+    <div className="rounded-2xl p-4 mb-5 shadow-sm"
+      style={{ background: '#ffffff', border: '1.5px solid #ede9fe', borderLeft: '4px solid #8b5cf6' }}>
+      <div className="text-[11px] font-bold uppercase tracking-wider text-violet-600 mb-3">
+        📝 Tech Note R&D {year}
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label:'Total Approved', value: totalApproved, color:'#059669', bg:'#ffffff', border:'#d1fae5' },
-          { label:'Pending Review', value: totalPending,  color:'#d97706', bg:'#ffffff', border:'#fef3c7' },
-          { label:'Total Submissions', value: technotes.length, color:'#7c3aed', bg:'#ffffff', border:'#ede9fe' },
-        ].map(c => (
-          <div key={c.label} className="rounded-xl p-3 text-center border shadow-sm"
-            style={{ background: c.bg, borderColor: c.border }}>
-            <div className="text-2xl font-black" style={{ color: c.color }}>{c.value}</div>
-            <div className="text-[11px] text-slate-500 font-medium mt-0.5">{c.label}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl p-3 text-center border shadow-sm" style={{ borderColor:'#d1fae5' }}>
+          <div className="text-2xl font-black text-emerald-600">{approvedCount}</div>
+          <div className="text-[11px] text-slate-500 font-medium mt-0.5">Approved (Semua Tim)</div>
+        </div>
+        <div className="rounded-xl p-3 text-center border shadow-sm" style={{ borderColor:'#fef3c7' }}>
+          <div className="text-2xl font-black text-amber-600">{myPendingCount}</div>
+          <div className="text-[11px] text-slate-500 font-medium mt-0.5">Milik Saya — Pending</div>
+        </div>
       </div>
     </div>
   );
@@ -275,13 +264,11 @@ export default function TechNotePage() {
   useEffect(() => {
     const user = getSession<User>();
     if (!user) {
-      // Tidak ada sesi — redirect ke dashboard
       const target = window.top !== window ? window.top : window;
       if (target) target.location.href = '/dashboard';
       return;
     }
     setCurrentUser(user);
-    // Session watcher: auto-logout jika expired
     return startSessionWatcher();
   }, []);
 
@@ -291,16 +278,59 @@ export default function TechNotePage() {
   }, []);
 
   const fetchNotes = useCallback(async () => {
+    if (!currentUser) return;
     setLoading(true);
-    let q = supabase.from('tech_notes').select('*')
-      .gte('submitted_at', `${year}-01-01`)
-      .lte('submitted_at', `${year}-12-31T23:59:59`)
-      .order('submitted_at', { ascending:false });
-    if (isTeam && currentUser) q = q.eq('author_id', currentUser.id);
-    const { data } = await q;
-    setTechnotes((data ?? []) as TechNote[]);
+
+    // ── Aturan visibilitas Tech Note ──────────────────────────────────────────
+    // Admin/supervisor: semua tech note (untuk bisa melakukan approval)
+    // Team/user biasa:
+    //   - Semua tech note yang sudah APPROVED (visible ke semua)
+    //   - Tech note milik sendiri dengan status apapun (pending, revision, rejected)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    if (canManage) {
+      // Admin: ambil semua tech note tahun ini
+      const { data } = await supabase
+        .from('tech_notes')
+        .select('*')
+        .gte('submitted_at', `${year}-01-01`)
+        .lte('submitted_at', `${year}-12-31T23:59:59`)
+        .order('submitted_at', { ascending: false });
+      setTechnotes((data ?? []) as TechNote[]);
+    } else {
+      // Team user: ambil (approved semua orang) UNION (milik sendiri apapun statusnya)
+      const [approvedRes, mineRes] = await Promise.all([
+        supabase
+          .from('tech_notes')
+          .select('*')
+          .eq('status', 'approved')
+          .gte('submitted_at', `${year}-01-01`)
+          .lte('submitted_at', `${year}-12-31T23:59:59`),
+        supabase
+          .from('tech_notes')
+          .select('*')
+          .eq('author_id', currentUser.id)
+          .neq('status', 'approved')          // approved sudah diambil di atas
+          .gte('submitted_at', `${year}-01-01`)
+          .lte('submitted_at', `${year}-12-31T23:59:59`),
+      ]);
+
+      const approved = (approvedRes.data ?? []) as TechNote[];
+      const mine     = (mineRes.data ?? []) as TechNote[];
+
+      // Gabungkan, hilangkan duplikat berdasarkan id
+      const seen = new Set<string>();
+      const merged: TechNote[] = [];
+      for (const n of [...approved, ...mine]) {
+        if (!seen.has(n.id)) { seen.add(n.id); merged.push(n); }
+      }
+      // Urutkan: terbaru dulu
+      merged.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
+      setTechnotes(merged);
+    }
+
     setLoading(false);
-  }, [year, currentUser, isTeam]);
+  }, [year, currentUser, canManage]);
 
   useEffect(() => { fetchFolders(); }, [fetchFolders]);
   useEffect(() => { if (currentUser) fetchNotes(); }, [fetchNotes, currentUser]);
@@ -378,7 +408,7 @@ export default function TechNotePage() {
     <div className="flex flex-col h-screen font-sans bg-gray-50"
       style={{ backgroundImage:"url('/IVP_Background.png')", backgroundSize:'cover', backgroundPosition:'center', backgroundAttachment:'fixed' }}>
 
-      {/* ── Top Nav — full width, light theme ── */}
+      {/* ── Top Nav ── */}
       <header className="shrink-0 sticky top-0 z-30 w-full"
         style={{ background: 'rgba(255,255,255,0.92)', backdropFilter:'blur(16px)', borderBottom:'3px solid #ec4899' }}>
         <div className="flex items-center gap-3 px-6 py-3.5">
@@ -386,7 +416,7 @@ export default function TechNotePage() {
             style={{ background:'linear-gradient(135deg,#ec4899,#be185d)' }}>📝</div>
           <div>
             <h1 className="font-black text-[16px] leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-rose-800">Tech Note R&D</h1>
-            <p className="text-slate-500 text-[11px]">Dokumentasi teknikal & R&D · KPI 10% · Target {KKM_REQUIRED} approved/tahun</p>
+            <p className="text-slate-500 text-[11px]">Dokumentasi teknikal & R&D · KPI 10%</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             <select value={year} onChange={e=>setYear(Number(e.target.value))}
@@ -408,7 +438,7 @@ export default function TechNotePage() {
           selected={selectedFolder} onSelect={setSelectedFolder}
           onAdd={()=>setShowFolderModal(true)} canManage={canManage} />
 
-        {/* ── Main Content — with horizontal padding/max-width ── */}
+        {/* ── Main Content ── */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-[1200px] mx-auto px-6 py-5">
             {currentUser && <TechNoteKPISummary technotes={technotes} currentUser={currentUser} year={year} />}
@@ -441,7 +471,8 @@ export default function TechNotePage() {
                   className="px-3 py-2 text-[13px] rounded-xl outline-none text-slate-700 border border-gray-200 focus:border-rose-400" style={{ background: 'rgba(255,255,255,0.95)' }}>
                   <option value="all">Semua Status</option>
                   <option value="approved">✅ Approved</option>
-                  <option value="pending">⏳ Pending</option>
+                  {/* Team user hanya bisa filter approved & pending (note milik sendiri) */}
+                  {(canManage || true) && <option value="pending">⏳ Pending</option>}
                   <option value="revision">🔄 Perlu Revisi</option>
                   <option value="rejected">❌ Ditolak</option>
                 </select>
@@ -571,7 +602,7 @@ export default function TechNotePage() {
             onChange={e=>setUploadForm(p=>({...p,tags:e.target.value}))} placeholder="cth: setup, display, newline" />
         </Field>
         <div className="rounded-xl px-4 py-3 text-[12px] font-medium mb-4 bg-amber-50 border border-amber-200 text-amber-700">
-          ⚠️ Tech Note akan masuk ke <b>Approval Queue</b>. Setelah disetujui Admin/Supervisor, otomatis terhitung dalam KPI R&D.
+          ⚠️ Tech Note akan masuk ke <b>Approval Queue</b>. Setelah disetujui Admin/Supervisor, otomatis tampil ke semua anggota tim.
         </div>
         <div className="flex gap-3 justify-end">
           <button onClick={()=>setShowUploadModal(false)} className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 bg-gray-100 border border-gray-200 hover:bg-gray-200">Batal</button>
@@ -659,7 +690,7 @@ export default function TechNotePage() {
           </Field>
           {approvalForm.action==='approved' && (
             <div className="rounded-xl px-4 py-2.5 text-[12px] font-medium mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700">
-              ✅ Tech Note akan otomatis terhitung dalam KPI R&D ({KKM_REQUIRED} target/tahun)
+              ✅ Tech Note akan otomatis tampil ke semua anggota tim setelah disetujui.
             </div>
           )}
           <div className="flex gap-3 justify-end">
