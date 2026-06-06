@@ -352,7 +352,7 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4"
+    <div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[12vh] px-4"
       style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
       onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}>
 
