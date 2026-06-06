@@ -144,7 +144,7 @@ export default function UnitMovementPage() {
   );
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-fixed" style={{backgroundImage:'url(/IVP_Background.png)'}}>
+    <div className="h-screen overflow-hidden flex flex-col bg-cover bg-center bg-fixed" style={{backgroundImage:'url(/IVP_Background.png)'}}>
 
       {viewLog&&<ViewModal log={viewLog} onClose={()=>setViewLog(null)}/>}
       {editLog!==undefined&&<AddEditModal log={editLog} currentUser={currentUser!} teamMembers={teamMembers}
@@ -173,7 +173,7 @@ export default function UnitMovementPage() {
       )}
 
       {/* Header — tanpa logout & nama user (handled oleh dashboard) */}
-      <div className="bg-white/85 backdrop-blur-md shadow-md sticky top-0 z-30 animate-slide-down anim-d0" style={{borderBottom:'2px solid rgba(245,158,11,0.3)'}}>
+      <div className="bg-white/85 backdrop-blur-md shadow-md flex-shrink-0 z-30 animate-slide-down anim-d0" style={{borderBottom:'2px solid rgba(245,158,11,0.3)'}}>
         <div className="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md" style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>🚚</span>
@@ -193,7 +193,7 @@ export default function UnitMovementPage() {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
+      <div className="flex-1 overflow-y-auto max-w-[1600px] mx-auto px-6 py-6 space-y-6 w-full">
 
         {/* Stat Cards — 3 saja, tanpa Anggota PTS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up anim-d80">
