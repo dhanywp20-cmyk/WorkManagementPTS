@@ -46,27 +46,41 @@ function DonutChart({ segments, size = 72, strokeWidth = 11, label = '' }: {
   );
 }
 
-type TeamType = 'IVP' | 'MLDS';
+type TeamFilter = 'PTS' | 'Sales' | 'Marketing';
+
+const TEAM_FILTER_CONFIG: Record<TeamFilter, { label: string; emoji: string; activeClass: string }> = {
+  PTS:       { label: 'PTS',       emoji: '🔵', activeClass: 'bg-indigo-600 text-white' },
+  Sales:     { label: 'Sales',     emoji: '🟠', activeClass: 'bg-orange-500 text-white' },
+  Marketing: { label: 'Marketing', emoji: '🟣', activeClass: 'bg-purple-600 text-white' },
+};
+
+function matchesTeamFilter(u: any, filter: TeamFilter): boolean {
+  const role = (u.role ?? '').toLowerCase();
+  const sd   = u.salesDivision ?? '';
+  if (filter === 'PTS')       return role === 'team';
+  if (filter === 'Sales')     return ['sales','guest'].includes(role) && !sd.startsWith('Marketing:');
+  if (filter === 'Marketing') return ['sales','guest'].includes(role) && sd.startsWith('Marketing:');
+  return false;
+}
 
 // ─── Team Switch Button ────────────────────────────────────────────────────────
-function TeamSwitch({ active, onChange }: { active: TeamType; onChange: (t: TeamType) => void }) {
+function TeamSwitch({ active, onChange }: { active: TeamFilter; onChange: (t: TeamFilter) => void }) {
   return (
     <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
-      {(['IVP', 'MLDS'] as TeamType[]).map(t => (
-        <button
-          key={t}
-          onClick={() => onChange(t)}
-          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-            active === t
-              ? t === 'IVP'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-emerald-600 text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          {t === 'IVP' ? '🔵 PTS IVP' : '🟢 PTS MLDS'}
-        </button>
-      ))}
+      {(Object.keys(TEAM_FILTER_CONFIG) as TeamFilter[]).map(t => {
+        const cfg = TEAM_FILTER_CONFIG[t];
+        return (
+          <button
+            key={t}
+            onClick={() => onChange(t)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              active === t ? cfg.activeClass + ' shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {cfg.emoji} {cfg.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -78,7 +92,7 @@ export function AnalyticsPage() {
   const [divisionStats, setDivisionStats] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeTeam, setActiveTeam] = useState<TeamType>('IVP');
+  const [activeTeam, setActiveTeam] = useState<TeamFilter>('PTS');
 
   // Drill-down state
   const [selectedUser, setSelectedUser] = useState<{ uid: string; name: string } | null>(null);
@@ -89,17 +103,19 @@ export function AnalyticsPage() {
     const load = async () => {
       const { data: a } = await supabase
         .from('lc_quiz_attempts')
-        .select('user_id, score, passed, started_at, submitted_at, tab_switches, users(full_name, sales_division, team_type)')
+        .select('user_id, score, passed, started_at, submitted_at, tab_switches, users(full_name, sales_division, team_type, role)')
         .eq('is_submitted', true);
 
       if (a) {
         // ── Per user ──
-        const byUser: Record<string, { name: string; division: string | null; teamType: string | null; scores: number[]; passed: number; flags: number }> = {};
+        const byUser: Record<string, { name: string; division: string | null; teamType: string | null; role: string | null; salesDivision: string | null; scores: number[]; passed: number; flags: number }> = {};
         a.forEach((att: any) => {
           if (!byUser[att.user_id]) byUser[att.user_id] = {
             name: att.users?.full_name ?? '-',
             division: att.users?.sales_division ?? null,
             teamType: att.users?.team_type ?? null,
+            role: att.users?.role ?? null,
+            salesDivision: att.users?.sales_division ?? null,
             scores: [], passed: 0, flags: 0,
           };
           byUser[att.user_id].scores.push(att.score ?? 0);
@@ -108,11 +124,12 @@ export function AnalyticsPage() {
         });
         const allUsers = Object.entries(byUser).map(([uid, v]) => ({
           uid, name: v.name, division: v.division, teamType: v.teamType,
+          role: v.role, salesDivision: v.salesDivision,
           avg: v.scores.reduce((s: number, n: number) => s + n, 0) / v.scores.length,
           total: v.scores.length, passed: v.passed, flags: v.flags,
         })).sort((a, b) => b.avg - a.avg);
         setAllTopUsers(allUsers);
-        setTopUsers(allUsers.filter(u => u.teamType === 'IVP').slice(0, 20));
+        setTopUsers(allUsers.filter(u => matchesTeamFilter(u, 'PTS')).slice(0, 20));
 
         // ── Per Sales Division ──
         const byDiv: Record<string, { scores: number[]; passed: number; userIds: Set<string> }> = {};
@@ -168,7 +185,8 @@ export function AnalyticsPage() {
   // Re-filter topUsers whenever team switch changes
   useEffect(() => {
     if (allTopUsers.length > 0) {
-      setTopUsers(allTopUsers.filter(u => u.teamType === activeTeam).slice(0, 20));
+      setTopUsers(allTopUsers.filter(u => matchesTeamFilter(u, activeTeam)).slice(0, 20));
+      setSearch('');
     }
   }, [activeTeam, allTopUsers]);
 
@@ -190,8 +208,6 @@ export function AnalyticsPage() {
     ? topUsers.filter(u => u.name.toLowerCase().includes(search.toLowerCase()))
     : topUsers;
 
-  // Count users with no team_type recorded (for info banner)
-  const untaggedCount = allTopUsers.filter(u => !u.teamType).length;
 
   return (
     <div>
@@ -202,23 +218,14 @@ export function AnalyticsPage() {
           <p className="text-sm text-slate-500 mt-0.5">Performa team & statistik quiz</p>
         </div>
         <div className="flex items-center gap-3">
-          <TeamSwitch active={activeTeam} onChange={t => { setActiveTeam(t); setSearch(''); }} />
+          <TeamSwitch active={activeTeam} onChange={setActiveTeam} />
           <SearchInput value={search} onChange={setSearch} placeholder="Cari nama..." />
         </div>
       </div>
 
       <div className="p-8 space-y-10">
 
-        {/* ── Info banner: untagged users warning ── */}
-        {untaggedCount > 0 && (
-          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3.5">
-            <span className="text-amber-500 text-base mt-0.5">⚠️</span>
-            <p className="text-xs text-amber-700 leading-relaxed">
-              <strong>{untaggedCount} pengguna</strong> tidak memiliki data <code>team_type</code> dan tidak akan muncul di filter IVP / MLDS.
-              Pastikan kolom <code>team_type</code> sudah diisi di tabel <code>users</code> untuk pengguna tersebut.
-            </p>
-          </div>
-        )}
+
 
         {sessionStats.length > 0 && (
           <section>
@@ -297,7 +304,7 @@ export function AnalyticsPage() {
         {/* ── Top Performers — Team ─────────────────────────────────────── */}
         <section>
           <h3 className="text-[10px] font-bold uppercase tracking-widest mb-1 inline-flex items-center bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm">
-            🏆 Top Performers — {activeTeam === 'IVP' ? 'PTS IVP' : 'PTS MLDS'}
+            🏆 Top Performers — {TEAM_FILTER_CONFIG[activeTeam].label}
           </h3>
           <p className="text-xs text-slate-400 mb-4 ml-1">Klik nama untuk melihat detail nilai & aktivitas per quiz</p>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -356,7 +363,7 @@ export function AnalyticsPage() {
                 {filteredUsers.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center py-12 text-slate-400 text-sm">
-                      {loading ? 'Memuat data...' : search ? 'Tidak ada hasil' : `Belum ada data untuk tim ${activeTeam}`}
+                      {loading ? 'Memuat data...' : search ? 'Tidak ada hasil' : `Belum ada data untuk ${TEAM_FILTER_CONFIG[activeTeam].label}`}
                     </td>
                   </tr>
                 )}
