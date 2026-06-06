@@ -34,7 +34,7 @@ const ALL_TYPES: ResultType[] = ['ticket','reminder','project','piket','unit','u
 
 export default function GlobalSearch({ currentUser, onNavigate }: {
   currentUser: User;
-  onNavigate?: (url: string) => void;
+  onNavigate?: (url: string, query: string, type: ResultType) => void;
 }) {
   const [open, setOpen]         = useState(false);
   const [query, setQuery]       = useState('');
@@ -325,7 +325,7 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
 
   const handleSelect = (r: SearchResult) => {
     if (r.url) {
-      if (onNavigate) onNavigate(r.url);
+      if (onNavigate) onNavigate(r.url, query, r.type);
       else window.location.href = r.url;
     }
     setOpen(false);
@@ -352,7 +352,7 @@ export default function GlobalSearch({ currentUser, onNavigate }: {
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-start justify-center pt-[12vh] px-4"
-      style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+      style={{ background: 'rgba(0,0,0,0.15)' }}
       onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}>
 
       <div className="w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
