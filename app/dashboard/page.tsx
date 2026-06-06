@@ -613,11 +613,10 @@ export default function Dashboard() {
   // ── SHARED HEADER JSX ──
   const renderHeader = (withBackBtn = false) => (
     <div className="bg-white/80 backdrop-blur-md shadow-md flex-shrink-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 50 }}>
-      {/* ── ROW 1: Logo + Notif + User ── */}
       <div className="w-full px-3 md:px-4 py-3 md:py-3.5">
         <div className="flex items-center justify-between gap-2 md:gap-4">
-          {/* LEFT */}
-          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+          {/* LEFT: Logo + Global Search */}
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             <div className="w-9 h-9 md:w-12 md:h-12 bg-gradient-to-br from-rose-600 to-rose-700 rounded-xl shadow-md flex items-center justify-center flex-shrink-0">
               <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -634,6 +633,18 @@ export default function Dashboard() {
               </div>
               <p className="text-slate-500 text-[10px] md:text-xs font-medium mt-0.5 hidden sm:block">IndoVisual Professional Tools</p>
             </div>
+            {/* Global Search — di sebelah logo */}
+            {currentUser && (
+              <div className="hidden sm:block">
+                <GlobalSearch
+                  currentUser={currentUser}
+                  onNavigate={(url) => {
+                    setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
+                    setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* CENTER — hanya di main menu (non-sidebar), notif di tengah */}
@@ -704,70 +715,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── ROW 2: Global Search + Quick Nav ── */}
-      {currentUser && (
-        <div
-          className="w-full px-3 md:px-4 py-1.5 flex items-center gap-2 overflow-x-auto"
-          style={{
-            borderTop: '1px solid rgba(0,0,0,0.06)',
-            background: 'rgba(248,250,252,0.85)',
-            scrollbarWidth: 'none',
-          }}
-        >
-          {/* Global Search — selalu di ujung kiri */}
-          <div className="flex-shrink-0">
-            <GlobalSearch
-              currentUser={currentUser}
-              onNavigate={(url) => {
-                setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
-                setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
-              }}
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="w-px h-5 bg-slate-200 flex-shrink-0" />
-
-          {/* Menu nav pills — semua visibleMenuItems */}
-          {!menuLoading && visibleMenuItems.map((menu) => {
-            const isActive = showSidebar && visibleMenuItems.some(m =>
-              m.key === menu.key && m.items.some(it => it.internal && internalUrl?.includes(it.url ?? ''))
-            );
-            return (
-              <button
-                key={menu.key}
-                onClick={() => {
-                  if (menu.items.length === 1) {
-                    handleMenuClick(menu.items[0], menu.title);
-                  } else {
-                    handleMenuClick(menu.items[0], menu.title);
-                  }
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold flex-shrink-0 transition-all whitespace-nowrap"
-                style={isActive
-                  ? { background: 'rgba(15,23,42,0.85)', color: 'white' }
-                  : { background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.08)', color: '#475569' }
-                }
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.08)';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#0f172a';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.7)';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#475569';
-                  }
-                }}
-              >
-                <span className="text-sm leading-none">{menu.icon}</span>
-                <span>{menu.title}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 
