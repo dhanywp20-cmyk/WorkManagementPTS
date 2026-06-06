@@ -645,8 +645,8 @@ export default function Dashboard() {
               <GlobalSearch
                 currentUser={currentUser}
                 onNavigate={(url) => {
-                  setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
-                  setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
+                  setIframeUrl(null); setShowTicketing(false); setInternalUrl('/ticketing'); setIframeTitle(''); setShowDashboardPanel(false);
+                  setTimeout(() => { setInternalUrl(url); setShowTicketing(true); setShowSidebar(true); }, 150);
                 }}
               />
             )}
