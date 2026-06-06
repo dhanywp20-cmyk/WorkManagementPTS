@@ -9,6 +9,7 @@ export interface User {
   sales_division?: string;
   jabatan?: string;
   allowed_menus?: string[];
+  kpi_enabled?: boolean;  // true = masuk roster KPI, false = dikecualikan
 }
 
 export interface MenuItem {
@@ -138,6 +139,6 @@ export interface NotifBellProps {
 
 // Admin Panel props
 export interface AdminPanelModalProps {
-  initialTab: 'settings' | 'userManagement' | 'picBrand';
+  initialTab: 'settings' | 'userManagement' | 'picBrand' | 'kpiRoster';
   onClose: () => void;
 }
