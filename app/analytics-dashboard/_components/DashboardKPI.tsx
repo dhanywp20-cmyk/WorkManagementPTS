@@ -1000,7 +1000,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 {/* PIKET SHOWROOM */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🏪 Piket Showroom</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">🏪 Piket Showroom</span>
                     <span className="text-[10px] text-slate-400">{new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</span>
                   </div>
                   {/* PIC row */}
@@ -1040,7 +1040,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 {/* TICKET TROUBLESHOOTING */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🎫 Ticket</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">🎫 Ticket</span>
                     <span className="text-[10px] text-slate-400">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua'}</span>
                   </div>
                   {/* Mini stat row */}
@@ -1051,30 +1051,32 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       {label:'Solved',value:kpi?.tickets.solved??0,        c:'#10b981'},
                       {label:'Hari ini',value:kpi?.tickets.resolvedToday??0,c:'#0891b2'},
                     ].map(s=>(
-                      <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
-                        {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
-                          <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                      <div key={s.label} className="flex flex-col items-center p-1 rounded-lg" style={{background:s.c+'10'}}>
+                        {loading ? <div className="h-4 w-5 rounded animate-pulse bg-slate-100 mb-0.5"/> :
+                          <span className="text-sm font-black leading-none" style={{color:s.c}}>{s.value}</span>}
+                        <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                       </div>
                     ))}
                   </div>
                   {/* Donut + status list */}
                   {!loading&&kpi&&kpi.tickets.byStatus.length>0&&(
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <DonutChart segments={kpi.tickets.byStatus.map(s=>({value:s.count,color:s.color}))}
-                        size={38} strokeWidth={6} label={`${kpi.tickets.total}`}/>
-                      <div className="flex-1 space-y-0.5">
-                        {kpi.tickets.byStatus.map(s=>(
-                          <div key={s.status} className="flex items-center gap-1">
+                        size={52} strokeWidth={7} label={`${kpi.tickets.total}`}/>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        {kpi.tickets.byStatus.slice(0,6).map(s=>(
+                          <div key={s.status} className="flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:s.color}}/>
-                            <span className="text-[11px] text-slate-500 flex-1 truncate">{s.status}</span>
-                            <MiniBar value={s.count} max={kpi.tickets.total} color={s.color} h={3}/>
-                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{s.count}</span>
+                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{minWidth:0,width:'7rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.status}</span>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
+                              <div className="h-full rounded-full" style={{width:`${kpi.tickets.total>0?(s.count/kpi.tickets.total)*100:0}%`,background:s.color}}/>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{s.count}</span>
                           </div>
                         ))}
-                        <div className="flex justify-end mt-1">
-                          <span className="text-[10px] text-slate-400">Avg resolusi </span>
-                          <span className="text-sm font-black text-rose-500 ml-1">{kpi.tickets.avgResolutionDays} hari</span>
+                        <div className="flex justify-end mt-0.5">
+                          <span className="text-[9px] text-slate-400">Avg resolusi </span>
+                          <span className="text-[10px] font-black text-rose-500 ml-1">{kpi.tickets.avgResolutionDays}h</span>
                         </div>
                       </div>
                     </div>
@@ -1088,7 +1090,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 {/* REMINDER SCHEDULE */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">📅 Reminder Schedule</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">📅 Reminder Schedule</span>
                   </div>
                   {/* Stat row */}
                   <div className="grid grid-cols-4 gap-1 mb-2">
@@ -1098,31 +1100,33 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       {label:'Overdue', value:kpi?.reminders.overdueCount??0,c:'#ef4444'},
                       {label:'Done',    value:kpi?.reminders.done??0,        c:'#10b981'},
                     ].map(s=>(
-                      <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
-                        {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
-                          <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                      <div key={s.label} className="flex flex-col items-center p-1 rounded-lg" style={{background:s.c+'10'}}>
+                        {loading ? <div className="h-4 w-5 rounded animate-pulse bg-slate-100 mb-0.5"/> :
+                          <span className="text-sm font-black leading-none" style={{color:s.c}}>{s.value}</span>}
+                        <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                       </div>
                     ))}
                   </div>
                   {/* Donut + category bar list */}
                   {!loading&&kpi&&kpi.reminders.byCategory.length>0&&(
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <DonutChart segments={kpi.reminders.byCategory.map(c=>({value:c.count,color:c.color}))}
-                        size={38} strokeWidth={6} label={`${kpi.reminders.total}`}/>
-                      <div className="flex-1 space-y-0.5">
-                        {kpi.reminders.byCategory.map(c=>(
-                          <div key={c.cat} className="flex items-center gap-1">
+                        size={52} strokeWidth={7} label={`${kpi.reminders.total}`}/>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        {kpi.reminders.byCategory.slice(0,6).map(c=>(
+                          <div key={c.cat} className="flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:c.color}}/>
-                            <span className="text-sm text-slate-500 w-20 truncate">{c.cat}</span>
-                            <MiniBar value={c.count} max={kpi.reminders.total} color={c.color} h={3}/>
-                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{c.count}</span>
+                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{minWidth:0,width:'7rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.cat}</span>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
+                              <div className="h-full rounded-full" style={{width:`${kpi.reminders.total>0?(c.count/kpi.reminders.total)*100:0}%`,background:c.color}}/>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{c.count}</span>
                           </div>
                         ))}
                         {/* Done rate */}
-                        <div className="flex justify-end mt-1">
-                          <span className="text-[10px] text-slate-400">Done rate </span>
-                          <span className="text-sm font-black text-emerald-600 ml-1">
+                        <div className="flex justify-end mt-0.5">
+                          <span className="text-[9px] text-slate-400">Done rate </span>
+                          <span className="text-[10px] font-black text-emerald-600 ml-1">
                             {kpi.reminders.total>0?Math.round((kpi.reminders.done/kpi.reminders.total)*100):0}%
                           </span>
                         </div>
@@ -1134,7 +1138,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 {/* UNIT MOVEMENT + PENGGUNA (admin) / hanya unit (pts_sup) */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🚚 Unit Movement</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">🚚 Unit Movement</span>
                     <span className="text-[10px] text-slate-400">Bulan ini</span>
                   </div>
                   {/* Unit stats */}
@@ -1144,33 +1148,37 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                       {label:'Keluar',value:kpi?.units.keluarThisMonth??0,  c:'#f59e0b'},
                       {label:'Masuk', value:kpi?.units.masukThisMonth??0,   c:'#10b981'},
                     ].map(s=>(
-                      <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'12'}}>
-                        {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
-                          <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-sm text-slate-400 mt-0.5">{s.label}</span>
+                      <div key={s.label} className="flex flex-col items-center p-1 rounded-lg" style={{background:s.c+'12'}}>
+                        {loading ? <div className="h-4 w-5 rounded animate-pulse bg-slate-100 mb-0.5"/> :
+                          <span className="text-sm font-black leading-none" style={{color:s.c}}>{s.value}</span>}
+                        <span className="text-[10px] text-slate-400 mt-0.5">{s.label}</span>
                       </div>
                     ))}
                   </div>
                   {!loading&&kpi&&(
-                    <div className="flex items-center gap-2 mb-2">
-                      <DonutChart size={34} strokeWidth={5}
+                    <div className="flex items-start gap-2 mb-2">
+                      <DonutChart size={52} strokeWidth={7}
                         segments={[
                           {value:kpi.units.keluarThisMonth,color:'#f59e0b'},
                           {value:kpi.units.masukThisMonth, color:'#10b981'},
                           {value:Math.max(kpi.units.totalLogs-kpi.units.keluarThisMonth-kpi.units.masukThisMonth,0),color:'#e2e8f0'},
                         ]} label=""/>
-                      <div className="flex-1 space-y-0.5">
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400"/>
-                          <span className="text-[11px] text-slate-500 flex-1">Keluar</span>
-                          <MiniBar value={kpi.units.keluarThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#f59e0b" h={3}/>
-                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.keluarThisMonth}</span>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"/>
+                          <span className="text-[10px] text-slate-500 flex-shrink-0 w-10">Keluar</span>
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                            <div className="h-full rounded-full bg-amber-400" style={{width:`${kpi.units.totalLogs>0?(kpi.units.keluarThisMonth/kpi.units.totalLogs)*100:0}%`}}/>
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{kpi.units.keluarThisMonth}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
-                          <span className="text-[11px] text-slate-500 flex-1">Masuk</span>
-                          <MiniBar value={kpi.units.masukThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#10b981" h={3}/>
-                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.masukThisMonth}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"/>
+                          <span className="text-[10px] text-slate-500 flex-shrink-0 w-10">Masuk</span>
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                            <div className="h-full rounded-full bg-emerald-500" style={{width:`${kpi.units.totalLogs>0?(kpi.units.masukThisMonth/kpi.units.totalLogs)*100:0}%`}}/>
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{kpi.units.masukThisMonth}</span>
                         </div>
                       </div>
                     </div>
@@ -1178,20 +1186,22 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   {/* Pengguna platform — hanya admin, inline di bawah unit */}
                   {scope.kind==='admin'&&!loading&&kpi&&(
                     <div className="border-t border-slate-100 pt-2 mt-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-2">
                         <DonutChart
                           segments={(kpi.users.byRole).map((r,i)=>({value:r.count,color:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}))}
-                          size={34} strokeWidth={5} label={`${kpi.users.total}`}/>
-                        <div className="flex-1">
-                          <div className="text-sm font-black text-slate-400 uppercase tracking-wider mb-1">👥 Pengguna</div>
+                          size={52} strokeWidth={7} label={`${kpi.users.total}`}/>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">👥 Pengguna</div>
                           <div className="space-y-0.5">
                             {kpi.users.byRole.map((r,i)=>(
-                              <div key={r.role} className="flex items-center gap-1">
+                              <div key={r.role} className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                   style={{background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
-                                <span className="text-[11px] text-slate-500 flex-1 uppercase">{r.role}</span>
-                                <MiniBar value={r.count} max={kpi.users.total} color={['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]} h={3}/>
-                                <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{r.count}</span>
+                                <span className="text-[10px] text-slate-500 flex-shrink-0 uppercase" style={{width:'4.5rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.role}</span>
+                                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                                  <div className="h-full rounded-full" style={{width:`${kpi.users.total>0?(r.count/kpi.users.total)*100:0}%`,background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{r.count}</span>
                               </div>
                             ))}
                           </div>
@@ -1206,7 +1216,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
               {scope.kind==='admin'&&(
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🎓 Learning Center</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">🎓 Learning Center</span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {/* Stat mini col */}
@@ -1217,10 +1227,10 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                         {label:'Peserta',  value:kpi?.learning.totalParticipants??0, c:'#0891b2'},
                         {label:'Avg Skor', value:kpi?.learning.avgScore??0,          c:'#f59e0b'},
                       ].map(s=>(
-                        <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
+                        <div key={s.label} className="flex flex-col items-center p-1 rounded-lg" style={{background:s.c+'10'}}>
                           {loading?<div className="h-4 w-8 rounded animate-pulse bg-slate-100 mb-0.5"/>:
-                            <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                          <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                            <span className="text-sm font-black leading-none" style={{color:s.c}}>{s.value}</span>}
+                          <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                         </div>
                       ))}
                     </div>
@@ -2094,23 +2104,26 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🗂️ Reminder per Kategori</h3>
                   {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-start gap-5">
                       <div className="flex-shrink-0">
-                        <DonutChart size={100} strokeWidth={12}
+                        <DonutChart size={72} strokeWidth={9}
                           segments={(kpi?.reminders.byCategory??[]).map(c=>({value:c.count,color:c.color}))}
                           label={`${kpi?.reminders.total??0}`}/>
                       </div>
-                      <div className="space-y-2 flex-1 min-w-0">
+                      <div className="space-y-1.5 flex-1 min-w-0">
                         {(kpi?.reminders.byCategory??[]).map(c=>(
                           <div key={c.cat} className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background:c.color }}/>
-                            <span className="text-xs flex-1 truncate text-slate-600 font-medium">{c.cat}</span>
-                            <span className="text-xs font-black text-slate-700">{c.count}</span>
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background:c.color }}/>
+                            <span className="text-[11px] text-slate-600 font-medium flex-shrink-0" style={{width:'9rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.cat}</span>
+                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
+                              <div className="h-full rounded-full" style={{width:`${(kpi?.reminders.total??0)>0?(c.count/(kpi?.reminders.total??1))*100:0}%`,background:c.color}}/>
+                            </div>
+                            <span className="text-[11px] font-black text-slate-700 flex-shrink-0 w-5 text-right">{c.count}</span>
                           </div>
                         ))}
                         <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between">
-                          <span className="text-xs text-slate-400">Done rate</span>
-                          <span className="text-sm font-black text-emerald-600">
+                          <span className="text-[11px] text-slate-400">Done rate</span>
+                          <span className="text-[11px] font-black text-emerald-600">
                             {kpi && kpi.reminders.total>0?Math.round((kpi.reminders.done/kpi.reminders.total)*100):0}%
                           </span>
                         </div>
