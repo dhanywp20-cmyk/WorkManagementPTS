@@ -285,7 +285,9 @@ function ScopeBadge({ scope }: { scope: Scope }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function DashboardKPI({ currentUser }: { currentUser: User }) {
+interface DashboardKPIProps { currentUser: User; }
+
+export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
   const [scope, setScope]           = useState<Scope>({ kind: 'none' });
   const [scopeReady, setScopeReady] = useState(false);
   const [kpi, setKpi]               = useState<KPIData | null>(null);
