@@ -612,8 +612,9 @@ export default function Dashboard() {
 
   // ── SHARED HEADER JSX ──
   const renderHeader = (withBackBtn = false) => (
-    <div className="bg-white/80 backdrop-blur-md shadow-md border-b border-slate-200/70 flex-shrink-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 50 }}>
-      <div className="w-full px-3 md:px-4 py-3 md:py-4">
+    <div className="bg-white/80 backdrop-blur-md shadow-md flex-shrink-0" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'relative', zIndex: 50 }}>
+      {/* ── ROW 1: Logo + Notif + User ── */}
+      <div className="w-full px-3 md:px-4 py-3 md:py-3.5">
         <div className="flex items-center justify-between gap-2 md:gap-4">
           {/* LEFT */}
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
@@ -639,11 +640,6 @@ export default function Dashboard() {
           {!showSidebar && currentUser && (
             <div className="flex-1 flex items-center justify-center gap-3 px-2 md:px-4">
               <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
-              {/* Global Search */}
-              <GlobalSearch currentUser={currentUser} onNavigate={(url) => {
-                setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
-                setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
-              }} />
             </div>
           )}
           {showSidebar && <div className="flex-1" />}
@@ -652,13 +648,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
             {/* NotificationBar — di kanan hanya saat sidebar view */}
             {showSidebar && currentUser && (
-              <>
-                <GlobalSearch currentUser={currentUser} onNavigate={(url) => {
-                  setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
-                  setTimeout(() => { setShowTicketing(true); }, 150);
-                }} />
-                <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
-              </>
+              <NotificationBar currentUser={currentUser} onNavigate={handleNotifNavigate} />
             )}
 
             {/* User badge — hanya di main menu (non-sidebar), hidden di mobile kecil */}
@@ -713,6 +703,71 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── ROW 2: Global Search + Quick Nav ── */}
+      {currentUser && (
+        <div
+          className="w-full px-3 md:px-4 py-1.5 flex items-center gap-2 overflow-x-auto"
+          style={{
+            borderTop: '1px solid rgba(0,0,0,0.06)',
+            background: 'rgba(248,250,252,0.85)',
+            scrollbarWidth: 'none',
+          }}
+        >
+          {/* Global Search — selalu di ujung kiri */}
+          <div className="flex-shrink-0">
+            <GlobalSearch
+              currentUser={currentUser}
+              onNavigate={(url) => {
+                setIframeUrl(null); setShowTicketing(false); setInternalUrl(url); setIframeTitle('');
+                setTimeout(() => { setShowSidebar(true); setShowTicketing(true); }, 150);
+              }}
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-slate-200 flex-shrink-0" />
+
+          {/* Menu nav pills — semua visibleMenuItems */}
+          {!menuLoading && visibleMenuItems.map((menu) => {
+            const isActive = showSidebar && visibleMenuItems.some(m =>
+              m.key === menu.key && m.items.some(it => it.internal && internalUrl?.includes(it.url ?? ''))
+            );
+            return (
+              <button
+                key={menu.key}
+                onClick={() => {
+                  if (menu.items.length === 1) {
+                    handleMenuClick(menu.items[0], menu.title);
+                  } else {
+                    handleMenuClick(menu.items[0], menu.title);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold flex-shrink-0 transition-all whitespace-nowrap"
+                style={isActive
+                  ? { background: 'rgba(15,23,42,0.85)', color: 'white' }
+                  : { background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.08)', color: '#475569' }
+                }
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(15,23,42,0.08)';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#0f172a';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.7)';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#475569';
+                  }
+                }}
+              >
+                <span className="text-sm leading-none">{menu.icon}</span>
+                <span>{menu.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 
