@@ -1331,7 +1331,7 @@ Hubungi Admin untuk info lebih lanjut.
   const isFileType = (type: string) => type.startsWith('image/');
 
   return (
-    <div className="flex flex-col min-h-screen bg-cover bg-center bg-fixed bg-no-repeat" style={{ backgroundImage: 'url(/IVP_Background.png)' }}>
+    <div className="flex flex-col h-screen overflow-hidden bg-cover bg-center bg-fixed bg-no-repeat" style={{ backgroundImage: 'url(/IVP_Background.png)' }}>
       <NotifToast />
 
 
@@ -1445,7 +1445,7 @@ Hubungi Admin untuk info lebih lanjut.
         </div>
       </header>
 
-      <div className="flex-1 max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
+      <div className="flex-1 overflow-y-auto max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 animate-slide-up anim-d80">
