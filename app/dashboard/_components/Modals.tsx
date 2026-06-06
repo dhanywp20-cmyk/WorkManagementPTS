@@ -2139,6 +2139,7 @@ export function AdminPanelModal({ initialTab, onClose }: AdminPanelModalProps) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex overflow-hidden border border-slate-200">
 
         {/* ── LEFT SIDEBAR ── */}
+        <div className="w-56 flex-shrink-0 flex flex-col border-r border-slate-100" style={{ background: 'linear-gradient(160deg, #1e293b 0%, #0f172a 100%)' }}>
           {/* Sidebar header */}
           <div className="px-5 py-5 border-b border-white/10">
             <div className="flex items-center gap-2.5">
