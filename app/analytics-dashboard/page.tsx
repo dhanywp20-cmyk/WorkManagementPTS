@@ -75,13 +75,13 @@ export default function AnalyticsDashboardPage() {
 
   return (
     <div
-      className="flex flex-col min-h-screen font-sans"
+      className="flex flex-col h-screen overflow-hidden font-sans"
       style={{
         backgroundImage: "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('/IVP_Background.png')",
         backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
       }}
     >
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
         <DashboardKPI currentUser={currentUser} />
       </div>
     </div>
