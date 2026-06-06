@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { setSession, clearSession, getSession, startSessionWatcher } from '@/lib/auth';
 import { isAdmin as checkIsAdmin } from '@/lib/constants';
@@ -23,8 +23,9 @@ import { RescheduleModal } from './_components/RescheduleModal';
 import { RequestJadwalModal, type JadwalRequest } from './_components/RequestJadwalModal';
 
 
-export default function ReminderSchedulePage() {
+function ReminderSchedulePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [appReady, setAppReady]             = useState(false);
   const [dashLoading, setDashLoading]       = useState(false);
   const [isLoggedIn, setIsLoggedIn]         = useState(false);
@@ -51,6 +52,12 @@ export default function ReminderSchedulePage() {
   const [filterYear, setFilterYear]         = useState<string>('all');
   const [searchProject, setSearchProject]   = useState('');
   const [searchSales, setSearchSales]       = useState('');
+
+  // ── Auto-apply filter dari Global Search (?q=...) ──
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) setSearchProject(q);
+  }, [searchParams]);
   const [searchDivisionSales, setSearchDivisionSales]       = useState('');
   const [searchTeamHandler, setSearchTeamHandler] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -2605,5 +2612,13 @@ jangan lupa peralatan & Semangat💪🏼
         ::-webkit-scrollbar-thumb { background: rgba(220,38,38,0.25); border-radius: 4px; }
       `}</style>
     </div>
+  );
+}
+
+export default function ReminderSchedulePage() {
+  return (
+    <Suspense>
+      <ReminderSchedulePageInner />
+    </Suspense>
   );
 }
