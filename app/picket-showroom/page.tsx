@@ -194,7 +194,7 @@ export default function PiketShowroomPage() {
 
 
   return(
-    <div className="min-h-screen flex flex-col relative" style={{backgroundImage:`url('/IVP_Background.png')`,backgroundSize:'cover',backgroundPosition:'center',backgroundAttachment:'fixed'}}>
+    <div className="h-screen overflow-hidden flex flex-col relative" style={{backgroundImage:`url('/IVP_Background.png')`,backgroundSize:'cover',backgroundPosition:'center',backgroundAttachment:'fixed'}}>
       <div className="absolute inset-0 pointer-events-none" style={{background:'rgba(255,255,255,0.08)'}}/>
       {loading&&rows.length===0&&(
         <div className="fixed inset-0 z-[100] flex items-center justify-center" style={{backgroundImage:`url('/IVP_Background.png')`,backgroundSize:'cover'}}>
@@ -206,7 +206,7 @@ export default function PiketShowroomPage() {
         </div>
       )}
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
         {/* ── HEADER ── */}
         <header className="sticky top-0 z-50 animate-slide-down anim-d0" style={{background:'rgba(255,255,255,0.9)',borderBottom:'3px solid #dc2626',backdropFilter:'blur(16px)'}}>
           <div className="max-w-[1600px] mx-auto px-6 py-3.5 flex items-center justify-between gap-4 flex-wrap">
@@ -238,7 +238,7 @@ export default function PiketShowroomPage() {
           </div>
         </header>
 
-        <div className="flex-1 max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
+        <div className="flex-1 overflow-y-auto max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
           <div className="animate-slide-up anim-d80">
             <TamuSummaryCards allRows={allRows} kegiatanList={kegiatanList} selectedYear={summaryYear} selectedMonth={summaryMonth} onYearChange={setSummaryYear} onMonthChange={setSummaryMonth}/>
           </div>
