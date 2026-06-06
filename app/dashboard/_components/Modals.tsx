@@ -2578,7 +2578,6 @@ export function AccountSettingsInline() {
                   });
                 })()}
               </div>
-              </div>
             )}
           </>
         )}
