@@ -1869,7 +1869,7 @@ export default function TicketingSystem() {
     <div className="min-h-screen flex flex-col relative" style={{ backgroundImage: "url(/IVP_Background.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(255,255,255,0.08)" }} />
       {/* Toast notifications */}
-      {toast && <Toast t={toast} />}
+      {toast && <Toast notif={toast} />}
       <div className="relative z-10 flex flex-col min-h-screen">
 
         {/* ── LOADING POPUP (Redesigned) ── */}
