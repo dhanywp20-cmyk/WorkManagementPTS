@@ -262,7 +262,7 @@ export default function OnboardingTour({ currentUser, forceShow, onDone }: Onboa
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes bounceIn {
           0%   { transform: scale(0.6); opacity: 0; }
           60%  { transform: scale(1.15); opacity: 1; }
