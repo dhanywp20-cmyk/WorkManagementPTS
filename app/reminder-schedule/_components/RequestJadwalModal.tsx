@@ -339,6 +339,5 @@ export function RequestJadwalModal({
           </div>
         </div>
       </div>
-    </div>
   );
 }
