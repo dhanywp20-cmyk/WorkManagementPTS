@@ -338,56 +338,109 @@ export function AccountSettingsModal({ onClose }: AccountSettingsModalProps) {
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      {filteredUsers.map(user => (
-                        <div key={user.id} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white transition-all">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
-                            style={{ background: 'linear-gradient(135deg, #fde68a, #f59e0b)', color: '#78350f' }}>
-                            {user.full_name?.charAt(0)?.toUpperCase() ?? 'U'}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-slate-800 text-sm truncate">{user.full_name}</p>
-                            <p className="text-xs text-slate-500">@{user.username}</p>
-                            {user.phone_number && (
-                              <p className="text-xs text-slate-400 mt-0.5">📞 {user.phone_number}</p>
-                            )}
-                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase bg-slate-200 text-slate-600">{user.role}</span>
-                              {user.jabatan && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">🏷️ {user.jabatan}</span>
-                              )}
-                              {user.team_type && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase bg-rose-100 text-rose-600 border border-rose-200">👥 {user.team_type}</span>
-                              )}
-                              {user.sales_division && (
-                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase bg-violet-100 text-violet-600 border border-violet-200">🏢 {user.sales_division}</span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => {
-                              let d = '', p = '';
-                              if (user.role === 'team') {
-                                d = 'PTS';
-                                if (user.team_type === 'Team PTS') p = 'PTS IVP';
-                                else if (user.team_type === 'Team PTS UMP') p = 'PTS UMP';
-                                else if (user.team_type === 'Team PTS MLDS') p = 'PTS MLDS';
-                              } else if (user.team_type === 'Guest') { d = 'Sales'; }
-                              else if (user.team_type === 'Marketing') { d = 'Marketing'; }
-                              setEditDivisi(d);
-                              setEditPtsType(p);
-                              setEditingUser(user);
-                            }} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all">Edit</button>
-                            <button onClick={() => handleDeleteUser(user.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-all">Hapus</button>
-                          </div>
-                        </div>
-                      ))}
-                      {filteredUsers.length === 0 && (
+                    <div className="space-y-4">
+                      {filteredUsers.length === 0 ? (
                         <div className="text-center py-10 text-slate-400 text-sm">
                           <div className="text-3xl mb-2">🔍</div>
                           Tidak ada akun yang cocok
                         </div>
-                      )}
+                      ) : (() => {
+                        // Group: division label → team_type sub-group → users
+                        const getDivLabel = (u: typeof users[0]) => {
+                          if (u.role === 'superadmin' || u.role === 'admin') return '⚙️ Admin / Superadmin';
+                          if (u.role === 'team') return `👥 ${u.team_type ?? 'Team PTS'}`;
+                          if (u.sales_division) return `🏢 ${u.sales_division}`;
+                          if (u.team_type === 'Marketing') return '📣 Marketing';
+                          return '👤 Lainnya';
+                        };
+                        const getSubLabel = (u: typeof users[0]) => u.team_type ?? u.role ?? '';
+                        // Build grouped structure: divLabel → subLabel → users[]
+                        const grouped: Record<string, Record<string, typeof users>> = {};
+                        filteredUsers.forEach(u => {
+                          const div = getDivLabel(u);
+                          const sub = getSubLabel(u);
+                          if (!grouped[div]) grouped[div] = {};
+                          if (!grouped[div][sub]) grouped[div][sub] = [];
+                          grouped[div][sub].push(u);
+                        });
+                        const divOrder = ['⚙️ Admin / Superadmin', '👥 Team PTS', '👥 Team PTS UMP', '👥 Team PTS MLDS'];
+                        const sortedDivs = [
+                          ...divOrder.filter(d => grouped[d]),
+                          ...Object.keys(grouped).filter(d => !divOrder.includes(d)).sort(),
+                        ];
+                        const divColors: Record<string, { hdr: string; dot: string }> = {
+                          '⚙️ Admin / Superadmin': { hdr: 'bg-slate-100 border-slate-300 text-slate-700', dot: '#64748b' },
+                          '👥 Team PTS':           { hdr: 'bg-rose-50 border-rose-200 text-rose-700',     dot: '#be123c' },
+                          '👥 Team PTS UMP':       { hdr: 'bg-orange-50 border-orange-200 text-orange-700', dot: '#c2410c' },
+                          '👥 Team PTS MLDS':      { hdr: 'bg-amber-50 border-amber-200 text-amber-700',  dot: '#b45309' },
+                          '📣 Marketing':          { hdr: 'bg-cyan-50 border-cyan-200 text-cyan-700',     dot: '#0891b2' },
+                          '👤 Lainnya':            { hdr: 'bg-slate-50 border-slate-200 text-slate-600',  dot: '#94a3b8' },
+                        };
+                        return sortedDivs.map(divLabel => {
+                          const subGroups = grouped[divLabel];
+                          const clr = divColors[divLabel] ?? { hdr: 'bg-violet-50 border-violet-200 text-violet-700', dot: '#7c3aed' };
+                          const totalInDiv = Object.values(subGroups).flat().length;
+                          return (
+                            <div key={divLabel} className="rounded-xl border overflow-hidden" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
+                              {/* Division header */}
+                              <div className={`flex items-center justify-between px-4 py-2 border-b ${clr.hdr}`}>
+                                <span className="text-xs font-black tracking-widest uppercase">{divLabel}</span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70">{totalInDiv} akun</span>
+                              </div>
+                              {/* Sub-groups (team_type) */}
+                              {Object.entries(subGroups).map(([subLabel, subUsers]) => (
+                                <div key={subLabel}>
+                                  {/* Only show sub-header if there's more than one sub-group in this division */}
+                                  {Object.keys(subGroups).length > 1 && (
+                                    <div className="px-4 py-1.5 flex items-center gap-2" style={{ background: 'rgba(0,0,0,0.025)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: clr.dot }} />
+                                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{subLabel}</span>
+                                      <span className="text-[10px] text-slate-400 ml-auto">{subUsers.length}</span>
+                                    </div>
+                                  )}
+                                  {subUsers.map(user => (
+                                    <div key={user.id} className="flex items-center gap-3 p-4 bg-white hover:bg-slate-50 transition-all border-b border-slate-100 last:border-b-0">
+                                      <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
+                                        style={{ background: 'linear-gradient(135deg, #fde68a, #f59e0b)', color: '#78350f' }}>
+                                        {user.full_name?.charAt(0)?.toUpperCase() ?? 'U'}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-slate-800 text-sm truncate">{user.full_name}</p>
+                                        <p className="text-xs text-slate-500">@{user.username}</p>
+                                        {user.phone_number && (
+                                          <p className="text-xs text-slate-400 mt-0.5">📞 {user.phone_number}</p>
+                                        )}
+                                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase bg-slate-200 text-slate-600">{user.role}</span>
+                                          {user.jabatan && (
+                                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">🏷️ {user.jabatan}</span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2 flex-shrink-0">
+                                        <button onClick={() => {
+                                          let d = '', p = '';
+                                          if (user.role === 'team') {
+                                            d = 'PTS';
+                                            if (user.team_type === 'Team PTS') p = 'PTS IVP';
+                                            else if (user.team_type === 'Team PTS UMP') p = 'PTS UMP';
+                                            else if (user.team_type === 'Team PTS MLDS') p = 'PTS MLDS';
+                                          } else if (user.team_type === 'Guest') { d = 'Sales'; }
+                                          else if (user.team_type === 'Marketing') { d = 'Marketing'; }
+                                          setEditDivisi(d);
+                                          setEditPtsType(p);
+                                          setEditingUser(user);
+                                        }} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-all">Edit</button>
+                                        <button onClick={() => handleDeleteUser(user.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-all">Hapus</button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   )}
                 </>
@@ -3005,7 +3058,7 @@ export function UserManagementInline() {
                   {/* Left: user list */}
                   <div>
                     <p className="text-xs font-bold text-slate-600 mb-2 uppercase tracking-widest">Pilih User</p>
-                    <div className="space-y-1 max-h-80 overflow-y-auto pr-1">
+                    <div className="space-y-1 max-h-[28rem] overflow-y-auto pr-1">
                       {ccEligibleUsers.filter(u => !searchQuery || u.full_name?.toLowerCase().includes(searchQuery.toLowerCase())).map(u => {
                         const cfg = u.jabatan ? JABATAN_CONFIG[u.jabatan as JabatanType] : null;
                         const isSelected = selectedCCUserId === u.id;
@@ -3038,7 +3091,7 @@ export function UserManagementInline() {
                             ✨ Auto-suggest ({autoSuggested.length})
                           </button>
                         )}
-                        <div className="space-y-1 max-h-64 overflow-y-auto pr-1 mb-3">
+                        <div className="space-y-1 max-h-[26rem] overflow-y-auto pr-1 mb-3">
                           {potentialCCTargets.map(target => {
                             const cfg = target.jabatan ? JABATAN_CONFIG[target.jabatan as JabatanType] : null;
                             const isChecked = ccChecked.has(target.id);
