@@ -465,12 +465,12 @@ export default function FormReviewPage() {
   // ─── Main Render ────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{
+    <div className="h-screen overflow-hidden flex flex-col relative" style={{
       backgroundImage: `url('/IVP_Background.png')`,
       backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
     }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.08)' }} />
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
 
         {/* Toast */}
         {toast && (
@@ -1018,7 +1018,7 @@ export default function FormReviewPage() {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <div className="flex-1 p-5 space-y-5">
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-slide-up anim-d80">
