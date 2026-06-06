@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getSession } from '@/lib/auth';
 import {
@@ -20,7 +21,8 @@ import { ViewIconBtn, EditIconBtn, DeleteIconBtn, ActionGroup } from '@/componen
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function PiketShowroomPage() {
+function PiketShowroomPageInner() {
+  const searchParams = useSearchParams();
   const [currentUser,setCurrentUser]=useState<any>(null);
   const [weekStart,setWeekStart]=useState<Date>(()=>getMonday(new Date()));
   const [rows,setRows]=useState<PiketRow[]>([]);
@@ -34,6 +36,12 @@ export default function PiketShowroomPage() {
   const [viewDetail,setViewDetail]=useState<PiketRow|null>(null);
   const [search,setSearch]=useState('');
   const [filterDay,setFilterDay]=useState<DayOfWeek|''>('');
+
+  // ── Auto-apply filter dari Global Search (?q=...) ──
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) setSearch(q);
+  }, [searchParams]);
   const [filterTamu,setFilterTamu]=useState(false);
   const [filterKebutuhan,setFilterKebutuhan]=useState<string|null>(null);
   const [filterInstansi,setFilterInstansi]=useState<string|null>(null);
@@ -528,5 +536,13 @@ export default function PiketShowroomPage() {
         select option{background:#ffffff;color:#1e293b}
       `}</style>
     </div>
+  );
+}
+
+export default function PiketShowroomPage() {
+  return (
+    <Suspense>
+      <PiketShowroomPageInner />
+    </Suspense>
   );
 }
