@@ -628,7 +628,8 @@ export default function Dashboard() {
                   <span className="hidden sm:inline">Work Management Platform</span>
                   <span className="sm:hidden">WM Platform</span>
                 </h1>
-
+                <span className="hidden sm:inline text-slate-300 font-light">|</span>
+                <span className="hidden sm:inline text-xs md:text-sm font-bold tracking-wide" style={{ color: '#c8861d' }}>PTS Portal</span>
               </div>
               <p className="text-slate-500 text-[10px] md:text-xs font-medium mt-0.5 hidden sm:block">IndoVisual Professional Tools</p>
             </div>
@@ -854,22 +855,33 @@ export default function Dashboard() {
 
           {/* ── SIDEBAR HEADER — Main Menu nav ── */}
           <div
-            className={`flex items-center flex-shrink-0 ${sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-3 py-3 gap-2'}`}
+            className={`flex items-center flex-shrink-0 ${sidebarCollapsed ? 'justify-center px-3 py-3' : 'px-3 py-2.5 gap-2'}`}
             style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}
           >
             {!sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarCollapsed(true)}
-                className="w-7 h-7 rounded-md flex items-center justify-center transition-all flex-shrink-0 ml-auto"
-                style={{ color: '#cbd5e1' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
-                title="Collapse sidebar"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
-                </svg>
-              </button>
+              <>
+                <div className="w-7 h-7 bg-gradient-to-br from-rose-600 to-rose-700 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-700 truncate leading-tight">Work Management</p>
+                  <p className="text-[9px] font-bold truncate" style={{ color: '#c8861d' }}>PTS Portal</p>
+                </div>
+                <button
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="w-7 h-7 rounded-md flex items-center justify-center transition-all flex-shrink-0"
+                  style={{ color: '#cbd5e1' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#cbd5e1'; }}
+                  title="Collapse sidebar"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              </>
             )}
             {sidebarCollapsed && (
               <button
