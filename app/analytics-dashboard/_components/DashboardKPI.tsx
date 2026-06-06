@@ -946,15 +946,11 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full" style={{ animation:'fadeInUp 0.35s ease forwards' }}>
+    <div className="flex flex-col min-h-screen" style={{ animation:'fadeInUp 0.35s ease forwards' }}>
 
-      {/* ══ LC-style wrapper: white/90 backdrop on background image ══ */}
-      <div className="rounded-3xl overflow-hidden"
-        style={{ background:'rgba(255,255,255,0.93)', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)', border:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 4px 32px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)' }}>
-
-        {/* ── Top bar (LC style: white/97 + red bottom border) ── */}
-        <div className="flex items-center justify-between gap-4 px-6 py-4"
-          style={{ background:'rgba(255,255,255,0.97)', backdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
+        {/* ── Top bar — sticky menempel di atas seperti Learning Center ── */}
+        <div className="flex items-center justify-between gap-4 px-6 py-4 flex-shrink-0 sticky top-0 z-50"
+          style={{ background:'rgba(255,255,255,0.97)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -989,8 +985,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
           </div>
         </div>
 
-        {/* ── Content area ── */}
-        <div className="p-4 space-y-5">
+        {/* ── Content area — scrollable, transparan ── */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-5">
 
           {/* ══════════ TAB ANALYTICS ══════════ */}
           {tab==='analytics' && (
@@ -2848,7 +2844,6 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
           )}
 
         </div>{/* end content */}
-      </div>{/* end wrapper */}
 
       {/* ══ Modal Mulai KPI (Snapshot) ══ */}
       {showStartKPI && typeof document !== 'undefined' && createPortal(
