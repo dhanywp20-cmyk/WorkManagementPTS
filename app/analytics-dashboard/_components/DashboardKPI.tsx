@@ -948,7 +948,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen" style={{ animation:'fadeInUp 0.35s ease forwards', background:'rgba(0,0,0,0.10)' }}>
+    <div className="flex flex-col flex-1 overflow-hidden" style={{ animation:'fadeInUp 0.35s ease forwards', background:'rgba(0,0,0,0.10)' }}>
 
         {/* ── Top bar — sticky menempel di atas seperti Learning Center ── */}
         <div className="flex items-center justify-between gap-4 px-6 py-4 flex-shrink-0 sticky top-0 z-50"
