@@ -48,6 +48,31 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── Team Switch ──────────────────────────────────────────────────────────────
+type TeamType = 'IVP' | 'MLDS';
+
+function TeamSwitch({ active, onChange }: { active: TeamType; onChange: (t: TeamType) => void }) {
+  return (
+    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 flex-shrink-0">
+      {(['IVP', 'MLDS'] as TeamType[]).map(t => (
+        <button
+          key={t}
+          onClick={() => onChange(t)}
+          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            active === t
+              ? t === 'IVP'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-emerald-600 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {t === 'IVP' ? '🔵 PTS IVP' : '🟢 PTS MLDS'}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export function AdminDashboard({ user }: { user: User }) {
   const [stats, setStats] = useState({ materials: 0, activeTeam: 0, sessions: 0, attempts: 0 });
@@ -72,6 +97,8 @@ export function AdminDashboard({ user }: { user: User }) {
   const [selectedUser, setSelectedUser] = useState<{ uid: string; name: string } | null>(null);
   const [userAttempts, setUserAttempts] = useState<any[]>([]);
   const [loadingUser, setLoadingUser] = useState(false);
+  const [activeTeam, setActiveTeam] = useState<TeamType>('IVP');
+  const [allTopUsers, setAllTopUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -93,7 +120,7 @@ export function AdminDashboard({ user }: { user: User }) {
           .select('*, users(full_name), lc_quiz_sessions(session_name, passing_grade)')
           .eq('is_submitted', true).order('submitted_at', { ascending: false }).limit(50),
         supabase.from('lc_quiz_attempts')
-          .select('user_id, score, passed, tab_switches, time_taken_sec, total_questions, users(full_name, jabatan, sales_division)')
+          .select('user_id, score, passed, tab_switches, time_taken_sec, total_questions, users(full_name, jabatan, sales_division, team_type)')
           .eq('is_submitted', true),
         supabase.from('lc_questions').select('id, batch_name'),
         supabase.from('lc_answers').select('question_id, is_correct'),
@@ -121,12 +148,13 @@ export function AdminDashboard({ user }: { user: User }) {
       // ── Top performers + consistency + fast-submit ─────────────────────────
       const byUser: Record<string, {
         name: string; scores: number[]; passed: number; tabSw: number;
-        minScore: number; maxScore: number; fastCount: number;
+        minScore: number; maxScore: number; fastCount: number; teamType: string | null;
       }> = {};
       allAtt.forEach((a: any) => {
         if (!byUser[a.user_id]) byUser[a.user_id] = {
           name: a.users?.full_name ?? '-', scores: [], passed: 0, tabSw: 0,
           minScore: Infinity, maxScore: -Infinity, fastCount: 0,
+          teamType: a.users?.team_type ?? null,
         };
         const sc = a.score ?? 0;
         byUser[a.user_id].scores.push(sc);
@@ -138,13 +166,15 @@ export function AdminDashboard({ user }: { user: User }) {
         const ts = a.time_taken_sec ?? Infinity;
         if (tq >= 5 && ts < tq * 5) byUser[a.user_id].fastCount++;
       });
-      setTopUsers(Object.entries(byUser).map(([uid, v]) => ({
-        uid, name: v.name,
+      const allUsers = Object.entries(byUser).map(([uid, v]) => ({
+        uid, name: v.name, teamType: v.teamType,
         avg: v.scores.reduce((s: number, n: number) => s + n, 0) / v.scores.length,
         total: v.scores.length, passed: v.passed, tabSw: v.tabSw,
         consistency: v.scores.length >= 2 ? v.maxScore - v.minScore : null,
         fastCount: v.fastCount,
-      })).sort((a, b) => b.avg - a.avg).slice(0, 20));
+      })).sort((a, b) => b.avg - a.avg);
+      setAllTopUsers(allUsers);
+      setTopUsers(allUsers.filter(u => u.teamType === 'IVP').slice(0, 20));
 
       // ── Per division/jabatan ───────────────────────────────────────────────
       // Group key = sales_division if present, else jabatan, else 'Lainnya'
@@ -222,6 +252,14 @@ export function AdminDashboard({ user }: { user: User }) {
     };
     load();
   }, []);
+
+  // Re-filter performers when team switch changes
+  useEffect(() => {
+    if (allTopUsers.length > 0) {
+      setTopUsers(allTopUsers.filter(u => u.teamType === activeTeam).slice(0, 20));
+      setSearchPerformer('');
+    }
+  }, [activeTeam, allTopUsers]);
 
   useEffect(() => {
     if (!selectedUser) return;
@@ -315,7 +353,10 @@ export function AdminDashboard({ user }: { user: User }) {
           <div className="min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <SectionHeader>🏆 Top Performers</SectionHeader>
-              <SearchInput value={searchPerformer} onChange={setSearchPerformer} placeholder="Cari nama..." />
+              <div className="flex items-center gap-2 flex-wrap">
+                <TeamSwitch active={activeTeam} onChange={setActiveTeam} />
+                <SearchInput value={searchPerformer} onChange={setSearchPerformer} placeholder="Cari nama..." />
+              </div>
             </div>
             <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm overflow-hidden overflow-x-auto">
               <table className="w-full text-sm table-zebra" style={{ minWidth: '480px' }}>
@@ -376,7 +417,7 @@ export function AdminDashboard({ user }: { user: User }) {
                   ))}
                   {filteredPerformers.length === 0 && (
                     <tr><td colSpan={6} className="text-center py-10 text-slate-400 text-sm">
-                      {loadingAnalytics ? 'Memuat data...' : searchPerformer ? 'Tidak ada hasil' : 'Belum ada data'}
+                      {loadingAnalytics ? 'Memuat data...' : searchPerformer ? 'Tidak ada hasil' : `Belum ada data untuk tim ${activeTeam}`}
                     </td></tr>
                   )}
                 </tbody>
