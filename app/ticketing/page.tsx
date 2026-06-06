@@ -1866,11 +1866,11 @@ export default function TicketingSystem() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ backgroundImage: "url(/IVP_Background.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
+    <div className="h-screen overflow-hidden flex flex-col relative" style={{ backgroundImage: "url(/IVP_Background.png)", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(255,255,255,0.08)" }} />
       {/* Toast notifications */}
       {toast && <Toast notif={toast} />}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
 
         {/* ── LOADING POPUP (Redesigned) ── */}
         {showLoadingPopup && (
@@ -1976,7 +1976,7 @@ export default function TicketingSystem() {
           </div>
         </header>
 
-        <div className="flex-1 max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
+        <div className="flex-1 overflow-y-auto max-w-[1600px] mx-auto w-full px-5 py-5 space-y-4">
 
           {/* ── GUEST SUMMARY SECTION (same style as admin) ── */}
           {currentUser?.role === "guest" && (
