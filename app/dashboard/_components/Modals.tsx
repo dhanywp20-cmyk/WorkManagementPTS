@@ -205,7 +205,9 @@ export function AccountSettingsModal({ onClose }: AccountSettingsModalProps) {
     !searchQuery ||
     u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    u.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.sales_division?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.team_type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -2370,7 +2372,7 @@ export function AccountSettingsInline() {
     );
   }
 
-  const filteredUsers = users.filter(u => !searchQuery || u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || u.role?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredUsers = users.filter(u => !searchQuery || u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || u.role?.toLowerCase().includes(searchQuery.toLowerCase()) || u.sales_division?.toLowerCase().includes(searchQuery.toLowerCase()) || u.team_type?.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
