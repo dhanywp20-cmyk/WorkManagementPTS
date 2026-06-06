@@ -2810,7 +2810,8 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
 
           {/* ══════════ TAB AUDIT TRAIL ══════════ */}
           {tab==='audit'&&(
-            <div className="space-y-3">
+            <div className="rounded-2xl p-4 space-y-3"
+              style={{ background:'rgba(255,255,255,0.92)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 16px rgba(0,0,0,0.08)' }}>
               {/* Search + filter */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative flex-1 min-w-[180px]">
