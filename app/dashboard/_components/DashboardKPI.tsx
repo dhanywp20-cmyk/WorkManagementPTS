@@ -1841,7 +1841,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 const kpiColor = noData ? '#94a3b8' : finalKPI>=85?'#10b981':finalKPI>=70?'#3b82f6':finalKPI>=50?'#f59e0b':'#ef4444';
                 const isEditing = kpiTeam.editingMember === member.id;
                 const modalContent = (
-                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+                  <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
                     style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
                     onClick={e => { if (e.target === e.currentTarget) { setSelectedKPIMember(null); setKpiTeam(prev=>({...prev,editingMember:null,editValues:{}})); } }}>
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
@@ -2159,146 +2159,337 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
           {/* ══════════ TAB RIWAYAT KPI ══════════ */}
           {tab==='history' && (scope.kind==='admin' || scope.kind==='pts_sup') && (() => {
-            const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
-            const kpiColor = (score: number, noData: boolean) =>
-              noData ? '#94a3b8' : score>=85?'#10b981':score>=70?'#3b82f6':score>=50?'#f59e0b':'#ef4444';
+            const MN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+            const kpiColor = (s:number) => s>=85?'#10b981':s>=70?'#3b82f6':s>=50?'#f59e0b':'#ef4444';
+            const kpiLabel = (s:number) => s>=85?'Excellent':s>=70?'Good':s>=50?'Fair':'Needs Work';
+
+            const deleteSnapshot = async (id:string, label:string) => {
+              if (!confirm(`Hapus periode "${label}"?\nTindakan ini permanen dan tidak bisa dibatalkan.`)) return;
+              await supabase.from('kpi_period_snapshots').delete().eq('id', id);
+              await fetchKPISnapshots();
+              if (expandedSnapshot === id) setExpandedSnapshot(null);
+            };
+
+            const exportSnapshotExcel = async (snap: KPIPeriodSnapshot) => {
+              const XLSX_MOD: any = await new Promise((resolve, reject) => {
+                if ((window as any).XLSX) { resolve((window as any).XLSX); return; }
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                s.onload = () => resolve((window as any).XLSX);
+                s.onerror = reject;
+                document.head.appendChild(s);
+              });
+              const avg = snap.members_json.length
+                ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length) : 0;
+              const wb = XLSX_MOD.utils.book_new();
+              const aoa: (string|number|null)[][] = [
+                ['REKAP KPI — ' + snap.period_label.toUpperCase(),null,null,null,null,null,null,null,null,null],
+                [`Periode: ${snap.period_label}  |  Tim: ${snap.team_type}  |  Disimpan: ${new Date(snap.created_at).toLocaleDateString('id-ID')} oleh ${snap.created_by}`,null,null,null,null,null,null,null,null,null],
+                [],
+                ['No','Nama','Jabatan','Tim','Ticket (20%)','BAST (40%)','LC (30%)','RnD (10%)','KPI Final (%)','Predikat'],
+              ];
+              snap.members_json.slice().sort((a,b)=>b.finalKPI-a.finalKPI).forEach((m,i)=>{
+                const nd = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+                aoa.push([i+1,m.name,m.jabatan,(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP'),
+                  m.tickScore/100,m.bastScore/100,m.lcScore/100,m.rndScore/100,nd?0:m.finalKPI/100,nd?'Belum Ada Data':kpiLabel(m.finalKPI)]);
+              });
+              aoa.push([]);
+              aoa.push([null,null,null,null,null,null,null,'Rata-rata Tim',avg/100,kpiLabel(avg)]);
+              const ws = XLSX_MOD.utils.aoa_to_sheet(aoa);
+              const fmt = '0%';
+              snap.members_json.forEach((_,i)=>{
+                ['E','F','G','H','I'].forEach(col=>{
+                  const cell = ws[`${col}${i+5}`];
+                  if(cell) cell.z = fmt;
+                });
+              });
+              ws['!cols'] = [{wch:4},{wch:28},{wch:16},{wch:10},{wch:13},{wch:13},{wch:10},{wch:10},{wch:13},{wch:14}];
+              XLSX_MOD.utils.book_append_sheet(wb, ws, 'Rekap KPI');
+              const out = XLSX_MOD.write(wb, {bookType:'xlsx',type:'array'});
+              const url = URL.createObjectURL(new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+              Object.assign(document.createElement('a'),{href:url,download:`KPI_${snap.period_label.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`}).click();
+              URL.revokeObjectURL(url);
+            };
+
+            const selectedSnap = kpiSnapshots.find(s=>s.id===expandedSnapshot) ?? null;
+
             return (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="inline-flex items-center gap-1.5 bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm border border-slate-200 text-[10px] font-bold uppercase tracking-widest">
-                    <span>📋</span>Riwayat Snapshot KPI
+              <div className="space-y-0">
+
+                {/* ── Page header ── */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="font-bold text-slate-800 text-sm">Riwayat Periode KPI</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">{kpiSnapshots.length} periode tersimpan</div>
                   </div>
-                  <span className="text-[11px] text-slate-400 ml-1">
-                    {kpiSnapshots.length} periode tersimpan · data permanen, tidak berubah
-                  </span>
                   <button onClick={fetchKPISnapshots}
-                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     Refresh
                   </button>
                 </div>
 
                 {kpiSnapshots.length === 0 ? (
-                  <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-                    <span className="text-4xl opacity-20">📋</span>
-                    <p className="text-sm">Belum ada snapshot KPI tersimpan.</p>
-                    <p className="text-xs text-slate-300">Klik <b className="text-rose-400">Mulai KPI</b> di tab KPI Team untuk merekam periode pertama.</p>
+                  <div className="flex flex-col items-center gap-3 py-20 text-slate-400">
+                    <span className="text-5xl opacity-20">📋</span>
+                    <p className="text-sm font-semibold text-slate-500">Belum ada periode yang disimpan</p>
+                    <p className="text-xs text-center leading-relaxed">
+                      Buka tab <b className="text-blue-500">KPI Team</b>, pilih periode &amp; filter,<br/>
+                      lalu klik <b className="text-rose-500">Mulai KPI</b> untuk menyimpan periode pertama.
+                    </p>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {kpiSnapshots.map(snap => {
-                      const isExpanded = expandedSnapshot === snap.id;
-                      const avgScore = snap.members_json.length
-                        ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length)
-                        : 0;
-                      const avgColor = kpiColor(avgScore, snap.members_json.length===0);
-                      const createdFmt = new Date(snap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
-                      return (
-                        <div key={snap.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                          {/* Snapshot header — clickable */}
-                          <button
-                            onClick={()=>setExpandedSnapshot(isExpanded ? null : snap.id)}
-                            className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50/80 transition-all text-left">
-                            {/* Period badge */}
-                            <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl flex-shrink-0"
-                              style={{background:`${avgColor}12`, border:`1.5px solid ${avgColor}30`}}>
-                              <span className="text-[9px] font-bold uppercase tracking-wide" style={{color:avgColor}}>
-                                {snap.period==='6m'?'6 Bln':'1 Thn'}
-                              </span>
-                              <span className="text-lg font-black leading-none" style={{color:avgColor}}>{avgScore}%</span>
-                              <span className="text-[8px] text-slate-400">rata2</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-slate-800 text-sm">{snap.period_label}</div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">
-                                Periode: <b className="text-slate-600">
-                                  {MONTH_NAMES[(snap.start_month ?? 1)-1]} – {MONTH_NAMES[(snap.end_month ?? 12)-1]} {snap.year}
-                                </b>
-                                &nbsp;·&nbsp;
-                                {snap.members_json.length} anggota
-                                &nbsp;·&nbsp;
-                                Disimpan {createdFmt} oleh <b className="text-slate-600">{snap.created_by}</b>
-                              </div>
-                              {/* Member pill preview */}
-                              <div className="flex gap-1 mt-1.5 flex-wrap">
-                                {snap.members_json.slice(0,6).map(m=>{
-                                  const c = kpiColor(m.finalKPI, false);
-                                  return (
-                                    <span key={m.id} className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                                      style={{background:`${c}15`,color:c,border:`1px solid ${c}30`}}>
-                                      {m.name.split(' ')[0]} {m.finalKPI}%
-                                    </span>
-                                  );
-                                })}
-                                {snap.members_json.length > 6 && (
-                                  <span className="text-[9px] text-slate-400 px-1.5 py-0.5">+{snap.members_json.length-6} lagi</span>
-                                )}
-                              </div>
-                            </div>
-                            <svg className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${isExpanded?'rotate-180':''}`}
-                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
-                            </svg>
+                ) : selectedSnap ? (
+                  /* ══ DETAIL VIEW ══ */
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    {/* Detail header */}
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+                      <button
+                        onClick={()=>setExpandedSnapshot(null)}
+                        className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+                        Kembali
+                      </button>
+                      <div className="w-px h-4 bg-slate-200"/>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-slate-800 text-sm">{selectedSnap.period_label}</span>
+                        <span className="ml-2 text-[10px] text-slate-400">
+                          {MN[(selectedSnap.start_month??1)-1]}–{MN[(selectedSnap.end_month??12)-1]} {selectedSnap.year}
+                          &nbsp;·&nbsp;{selectedSnap.members_json.length} anggota
+                          &nbsp;·&nbsp;{new Date(selectedSnap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
+                          &nbsp;oleh&nbsp;<b className="text-slate-600">{selectedSnap.created_by}</b>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={()=>exportSnapshotExcel(selectedSnap)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                          Export Excel
+                        </button>
+                        {scope.kind==='admin' && (
+                          <button onClick={()=>deleteSnapshot(selectedSnap.id, selectedSnap.period_label)}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Hapus
                           </button>
+                        )}
+                      </div>
+                    </div>
 
-                          {/* Expanded detail */}
-                          {isExpanded && (
-                            <div className="border-t border-slate-100 px-4 py-3">
-                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                                Detail Skor — {snap.period_label}
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {snap.members_json.map(m => {
-                                  const c = kpiColor(m.finalKPI, false);
-                                  return (
-                                    <div key={m.id} className="rounded-xl border p-3 flex items-center gap-3"
-                                      style={{background:`${c}06`,borderColor:`${c}25`}}>
-                                      <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                                        style={{background:`linear-gradient(135deg,${c},${c}88)`}}>
-                                        {m.name.charAt(0)}
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-slate-800 text-[12px] truncate">{m.name}</div>
-                                        <div className="text-[10px] text-slate-400">{m.jabatan}</div>
-                                        {/* Component bars */}
-                                        <div className="mt-1.5 space-y-0.5">
-                                          {[
-                                            {label:'🎫 Ticket', val:m.tickScore, color:'#ef4444'},
-                                            {label:'⭐ BAST', val:m.bastScore, color:'#f59e0b'},
-                                            {label:'🎓 LC', val:m.lcScore, color:'#6366f1'},
-                                            {label:'📝 RnD', val:m.rndScore, color:'#ec4899'},
-                                          ].map(comp=>(
-                                            <div key={comp.label} className="flex items-center gap-1.5">
-                                              <span className="text-[8px] text-slate-400 w-12 flex-shrink-0">{comp.label}</span>
-                                              <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                                                <div className="h-full rounded-full" style={{width:`${comp.val}%`,background:comp.color}}/>
-                                              </div>
-                                              <span className="text-[9px] font-bold w-7 text-right" style={{color:comp.color}}>{comp.val}%</span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                      <div className="flex flex-col items-end flex-shrink-0">
-                                        <span className="text-xl font-black" style={{color:c}}>{m.finalKPI}%</span>
-                                        <span className="text-[8px] font-bold uppercase" style={{color:c}}>
-                                          {m.finalKPI>=85?'Excellent':m.finalKPI>=70?'Good':m.finalKPI>=50?'Fair':'Needs Work'}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                    {/* Summary strip */}
+                    {(() => {
+                      const avg = selectedSnap.members_json.length
+                        ? Math.round(selectedSnap.members_json.reduce((s,m)=>s+m.finalKPI,0)/selectedSnap.members_json.length) : 0;
+                      const dist = [
+                        {label:'Excellent', count:selectedSnap.members_json.filter(m=>m.finalKPI>=85).length, c:'#10b981'},
+                        {label:'Good',      count:selectedSnap.members_json.filter(m=>m.finalKPI>=70&&m.finalKPI<85).length, c:'#3b82f6'},
+                        {label:'Fair',      count:selectedSnap.members_json.filter(m=>m.finalKPI>=50&&m.finalKPI<70).length, c:'#f59e0b'},
+                        {label:'Needs Work',count:selectedSnap.members_json.filter(m=>m.finalKPI<50).length, c:'#ef4444'},
+                      ];
+                      return (
+                        <div className="grid grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
+                          <div className="px-4 py-3">
+                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Avg Tim</div>
+                            <div className="text-xl font-black" style={{color:kpiColor(avg)}}>{avg}%</div>
+                            <div className="text-[9px] font-bold mt-0.5" style={{color:kpiColor(avg)}}>{kpiLabel(avg)}</div>
+                          </div>
+                          {dist.map(d=>(
+                            <div key={d.label} className="px-4 py-3">
+                              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{d.label}</div>
+                              <div className="text-xl font-black" style={{color:d.c}}>{d.count}</div>
+                              <div className="text-[9px] text-slate-400">orang</div>
                             </div>
-                          )}
+                          ))}
                         </div>
                       );
-                    })}
+                    })()}
+
+                    {/* Member table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-slate-100" style={{background:'#f8fafc'}}>
+                            <th className="px-4 py-2.5 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest w-8">#</th>
+                            <th className="px-3 py-2.5 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest">Nama</th>
+                            <th className="px-3 py-2.5 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tim</th>
+                            <th className="px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-widest" style={{color:'#ef4444'}}>Ticket<br/><span className="normal-case font-normal text-slate-300">20%</span></th>
+                            <th className="px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-widest" style={{color:'#f59e0b'}}>BAST<br/><span className="normal-case font-normal text-slate-300">40%</span></th>
+                            <th className="px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-widest" style={{color:'#6366f1'}}>LC<br/><span className="normal-case font-normal text-slate-300">30%</span></th>
+                            <th className="px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-widest" style={{color:'#ec4899'}}>RnD<br/><span className="normal-case font-normal text-slate-300">10%</span></th>
+                            <th className="px-3 py-2.5 text-center text-[9px] font-bold text-slate-500 uppercase tracking-widest">KPI Final</th>
+                            <th className="px-4 py-2.5 text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">Predikat</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedSnap.members_json.slice().sort((a,b)=>b.finalKPI-a.finalKPI).map((m,idx)=>{
+                            const noData = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+                            const c = noData?'#94a3b8':kpiColor(m.finalKPI);
+                            const lbl = noData?'—':kpiLabel(m.finalKPI);
+                            return (
+                              <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
+                                <td className="px-4 py-3 text-[10px] text-slate-300 font-semibold">{idx+1}</td>
+                                <td className="px-3 py-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
+                                      style={{background:c}}>
+                                      {m.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <div className="font-semibold text-slate-800 text-[12px]">{m.name}</div>
+                                      <div className="text-[9px] text-slate-400">{m.jabatan}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-3 py-3 text-[10px] text-slate-400">
+                                  {(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP')}
+                                </td>
+                                {[{v:m.tickScore,c:'#ef4444'},{v:m.bastScore,c:'#f59e0b'},{v:m.lcScore,c:'#6366f1'},{v:m.rndScore,c:'#ec4899'}].map((sc,i)=>(
+                                  <td key={i} className="px-3 py-3">
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-[11px] font-bold" style={{color:sc.c}}>{sc.v}%</span>
+                                      <div className="w-14 h-1 rounded-full bg-slate-100 overflow-hidden">
+                                        <div className="h-full rounded-full transition-all" style={{width:`${sc.v}%`,background:sc.c}}/>
+                                      </div>
+                                    </div>
+                                  </td>
+                                ))}
+                                <td className="px-3 py-3 text-center">
+                                  <span className="text-base font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="text-[9px] font-bold px-2 py-1 rounded-full whitespace-nowrap"
+                                    style={{background:`${c}15`,color:c,border:`1px solid ${c}25`}}>
+                                    {lbl}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr style={{background:'#f1f5f9',borderTop:'1.5px solid #e2e8f0'}}>
+                            <td colSpan={3} className="px-4 py-2.5 text-[10px] font-black text-slate-600">Rata-rata Tim</td>
+                            {(()=>{
+                              const mj = selectedSnap.members_json;
+                              const n = Math.max(mj.length,1);
+                              const avgT=Math.round(mj.reduce((s,m)=>s+m.tickScore,0)/n);
+                              const avgB=Math.round(mj.reduce((s,m)=>s+m.bastScore,0)/n);
+                              const avgL=Math.round(mj.reduce((s,m)=>s+m.lcScore,0)/n);
+                              const avgR=Math.round(mj.reduce((s,m)=>s+m.rndScore,0)/n);
+                              const avgF=Math.round(mj.reduce((s,m)=>s+m.finalKPI,0)/n);
+                              return (
+                                <>
+                                  {[{v:avgT,c:'#ef4444'},{v:avgB,c:'#f59e0b'},{v:avgL,c:'#6366f1'},{v:avgR,c:'#ec4899'}].map((sc,i)=>(
+                                    <td key={i} className="px-3 py-2.5 text-center text-[11px] font-black" style={{color:sc.c}}>{sc.v}%</td>
+                                  ))}
+                                  <td className="px-3 py-2.5 text-center text-sm font-black" style={{color:kpiColor(avgF)}}>{avgF}%</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <span className="text-[9px] font-bold px-2 py-1 rounded-full"
+                                      style={{background:`${kpiColor(avgF)}15`,color:kpiColor(avgF),border:`1px solid ${kpiColor(avgF)}25`}}>
+                                      {kpiLabel(avgF)}
+                                    </span>
+                                  </td>
+                                </>
+                              );
+                            })()}
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  /* ══ LIST VIEW ══ */
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr style={{background:'#f8fafc'}} className="border-b border-slate-200">
+                          <th className="px-4 py-3 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest">Periode</th>
+                          <th className="px-3 py-3 text-left text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:table-cell">Disimpan</th>
+                          <th className="px-3 py-3 text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">Anggota</th>
+                          <th className="px-3 py-3 text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg KPI</th>
+                          <th className="px-3 py-3 text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest hidden sm:table-cell">Distribusi</th>
+                          <th className="px-4 py-3 text-right text-[9px] font-bold text-slate-400 uppercase tracking-widest">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {kpiSnapshots.map((snap, idx) => {
+                          const avg = snap.members_json.length
+                            ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length) : 0;
+                          const c = kpiColor(avg);
+                          const excellent = snap.members_json.filter(m=>m.finalKPI>=85).length;
+                          const good      = snap.members_json.filter(m=>m.finalKPI>=70&&m.finalKPI<85).length;
+                          const fair      = snap.members_json.filter(m=>m.finalKPI>=50&&m.finalKPI<70).length;
+                          const needsW    = snap.members_json.filter(m=>m.finalKPI<50).length;
+                          return (
+                            <tr key={snap.id}
+                              className="border-b border-slate-50 hover:bg-blue-50/30 cursor-pointer transition-colors group"
+                              onClick={()=>setExpandedSnapshot(snap.id)}>
+                              <td className="px-4 py-3.5">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[9px] font-black"
+                                    style={{background:`${c}12`,color:c,border:`1px solid ${c}25`}}>
+                                    {snap.period==='6m'?'6B':'1T'}
+                                  </div>
+                                  <div>
+                                    <div className="font-bold text-slate-800 text-[12px] group-hover:text-blue-700 transition-colors">{snap.period_label}</div>
+                                    <div className="text-[10px] text-slate-400">
+                                      {MN[(snap.start_month??1)-1]} – {MN[(snap.end_month??12)-1]} {snap.year}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3.5 hidden sm:table-cell">
+                                <div className="text-[11px] text-slate-500">
+                                  {new Date(snap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
+                                </div>
+                                <div className="text-[10px] text-slate-400">{snap.created_by}</div>
+                              </td>
+                              <td className="px-3 py-3.5 text-center">
+                                <span className="text-[12px] font-bold text-slate-700">{snap.members_json.length}</span>
+                              </td>
+                              <td className="px-3 py-3.5 text-center">
+                                <div className="inline-flex flex-col items-center">
+                                  <span className="text-base font-black" style={{color:c}}>{avg}%</span>
+                                  <span className="text-[8px] font-bold" style={{color:c}}>{kpiLabel(avg)}</span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3.5 hidden sm:table-cell">
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {excellent>0 && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{excellent} Excellent</span>}
+                                  {good>0      && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">{good} Good</span>}
+                                  {fair>0      && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700">{fair} Fair</span>}
+                                  {needsW>0    && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-700">{needsW} NW</span>}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3.5" onClick={e=>e.stopPropagation()}>
+                                <div className="flex items-center gap-1.5 justify-end">
+                                  <button onClick={()=>exportSnapshotExcel(snap)}
+                                    title="Export Excel"
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-all">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                  </button>
+                                  {scope.kind==='admin' && (
+                                    <button onClick={()=>deleteSnapshot(snap.id,snap.period_label)}
+                                      title="Hapus periode ini"
+                                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                  )}
+                                  <button onClick={()=>setExpandedSnapshot(snap.id)}
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
             );
           })()}
-
           {/* ══════════ TAB CROSS-MODULE ANALYTICS ══════════ */}
           {tab==='cross'&&(
             <div className="space-y-5">
@@ -2506,7 +2697,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
       {/* ══ Modal Mulai KPI (Snapshot) ══ */}
       {showStartKPI && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
           onClick={e => { if (e.target === e.currentTarget && !savingSnapshot) setShowStartKPI(false); }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
@@ -2645,7 +2836,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
       {/* ══ Settings Modal ══ */}
       {showSettings && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}
           onClick={e => { if (e.target === e.currentTarget) setShowSettings(false); }}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
