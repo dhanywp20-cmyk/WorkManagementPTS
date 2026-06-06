@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { MiniPieChart, ViewIconBtn, EditIconBtn, DeleteIconBtn, ActionGroup } from '@/components/shared';
 import { getSession, startSessionWatcher } from '@/lib/auth';
@@ -10,7 +11,8 @@ import { AddEditModal } from './_components/AddEditModal';
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function UnitMovementPage() {
+function UnitMovementPageInner() {
+  const searchParams = useSearchParams();
   const [currentUser, setCurrentUser] = useState<User|null>(null);
   const [isLoggedIn,  setIsLoggedIn]  = useState(false);
   const [appReady,    setAppReady]    = useState(false); // full page loading state
@@ -24,6 +26,12 @@ export default function UnitMovementPage() {
   const [filterPTS,    setFilterPTS]    = useState('All');
   const [filterYear,   setFilterYear]   = useState('All');
   const [searchQuery,  setSearchQuery]  = useState('');
+
+  // ── Auto-apply filter dari Global Search (?q=...) ──
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) setSearchQuery(q);
+  }, [searchParams]);
 
   const [viewLog,       setViewLog]       = useState<MovementLog|null>(null);
   const [editLog,       setEditLog]       = useState<MovementLog|null|undefined>(undefined);
@@ -362,5 +370,13 @@ export default function UnitMovementPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function UnitMovementPage() {
+  return (
+    <Suspense>
+      <UnitMovementPageInner />
+    </Suspense>
   );
 }
