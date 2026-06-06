@@ -320,6 +320,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
   const [showStartKPI, setShowStartKPI]   = useState(false);
   const [savingSnapshot, setSavingSnapshot] = useState(false);
   const [expandedSnapshot, setExpandedSnapshot] = useState<string | null>(null);
+  const [selectedSnapMember, setSelectedSnapMember] = useState<string | null>(null); // popup detail member di Riwayat KPI
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
   // ── 1. Resolve scope ──────────────────────────────────────────────────────
@@ -868,7 +869,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
   const TAB_CONFIG = [
     {key:'analytics' as const, icon:'📊', label:'Analytics'},
     {key:'kpi_team'  as const, icon:'👥', label:'KPI Team'},
-    {key:'history'   as const, icon:'📋', label:'Riwayat KPI'},
+    ...(scope.kind !== 'team' ? [{key:'history' as const, icon:'📋', label:'Riwayat KPI'}] : []),
     {key:'cross'     as const, icon:'🔀', label:'Cross-Module'},
     {key:'audit'     as const, icon:'🔍', label:'Audit Trail'},
   ];
@@ -2343,7 +2344,9 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                             const c = noData?'#94a3b8':kpiColor(m.finalKPI);
                             const lbl = noData?'—':kpiLabel(m.finalKPI);
                             return (
-                              <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
+                              <tr key={m.id}
+                                className="border-b border-slate-50 hover:bg-blue-50/40 cursor-pointer transition-colors group"
+                                onClick={()=>setSelectedSnapMember(m.id)}>
                                 <td className="px-4 py-3 text-[10px] text-slate-300 font-semibold">{idx+1}</td>
                                 <td className="px-3 py-3">
                                   <div className="flex items-center gap-2">
@@ -2352,7 +2355,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                       {m.name.charAt(0)}
                                     </div>
                                     <div>
-                                      <div className="font-semibold text-slate-800 text-[12px]">{m.name}</div>
+                                      <div className="font-semibold text-slate-800 text-[12px] group-hover:text-blue-700 transition-colors">{m.name}</div>
                                       <div className="text-[9px] text-slate-400">{m.jabatan}</div>
                                     </div>
                                   </div>
@@ -2508,6 +2511,140 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
               </div>
             );
           })()}
+
+          {/* ══ POPUP DETAIL MEMBER — RIWAYAT KPI (Snapshot) ══ */}
+          {selectedSnapMember && (() => {
+            // Cari snapshot yang sedang dibuka
+            const snap = kpiSnapshots.find(s => s.id === expandedSnapshot);
+            if (!snap) return null;
+            const m = snap.members_json.find(x => x.id === selectedSnapMember);
+            if (!m) return null;
+            const noData = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+            const kpiCol = (s:number) => s>=85?'#10b981':s>=70?'#3b82f6':s>=50?'#f59e0b':'#ef4444';
+            const c = noData ? '#94a3b8' : kpiCol(m.finalKPI);
+            const lbl = noData?'Belum Ada Data':m.finalKPI>=85?'Excellent':m.finalKPI>=70?'Good':m.finalKPI>=50?'Fair':'Needs Work';
+            const modalContent = (
+              <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+                style={{background:'rgba(0,0,0,0.55)',backdropFilter:'blur(6px)'}}
+                onClick={e=>{if(e.target===e.currentTarget)setSelectedSnapMember(null);}}>
+                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                  style={{scrollbarWidth:'thin'}}>
+
+                  {/* Header */}
+                  <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10 rounded-t-3xl">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg text-white flex-shrink-0"
+                      style={{background:`linear-gradient(135deg,${c},${c}99)`}}>
+                      {m.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-slate-800 text-base truncate">{m.name}</div>
+                      <div className="text-[11px] text-slate-400">{m.jabatan} · {(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP')}</div>
+                    </div>
+                    <div className="flex flex-col items-end mr-2 flex-shrink-0">
+                      <div className="text-3xl font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">KPI Score</div>
+                    </div>
+                    {/* Frozen badge */}
+                    <div className="flex flex-col items-center gap-1 mr-2">
+                      <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 whitespace-nowrap">
+                        🔒 Snapshot
+                      </span>
+                      <span className="text-[9px] text-slate-400 whitespace-nowrap">{snap.period_label}</span>
+                    </div>
+                    <button onClick={()=>setSelectedSnapMember(null)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+
+                  <div className="p-5 space-y-4">
+
+                    {/* Info snapshot frozen */}
+                    <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-700">
+                      <span className="text-base">🔒</span>
+                      <span>Data ini adalah <b>snapshot yang dikunci</b> pada periode <b>{snap.period_label}</b>. Nilai tidak akan berubah meski data platform terus update — ini adalah catatan final periode tersebut.</span>
+                    </div>
+
+                    {/* KPI Score Breakdown */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        {label:'Ticketing',      val:m.tickScore, weight:'20%', color:'#ef4444', icon:'🎫', bg:'#fef2f2', border:'#ef444440'},
+                        {label:'BAST & Demo',     val:m.bastScore, weight:'40%', color:'#f59e0b', icon:'⭐', bg:'#fffbeb', border:'#f59e0b40'},
+                        {label:'Learning Center', val:m.lcScore,   weight:'30%', color:'#6366f1', icon:'🎓', bg:'#f5f3ff', border:'#6366f140'},
+                        {label:'R&D Tech Note',   val:m.rndScore,  weight:'10%', color:'#ec4899', icon:'📝', bg:'#fdf4ff', border:'#ec489940'},
+                      ].map(k=>(
+                        <div key={k.label} className="rounded-xl border p-2.5 text-center" style={{background:k.bg,borderColor:k.border}}>
+                          <div className="text-sm mb-0.5">{k.icon}</div>
+                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-tight mb-1">{k.label}</div>
+                          <div className="text-xl font-black" style={{color:k.color}}>{k.val}%</div>
+                          <div className="text-[9px] text-slate-400">bobot {k.weight}</div>
+                          <div className="w-full h-1 rounded-full bg-slate-100 overflow-hidden mt-1.5">
+                            <div className="h-full rounded-full" style={{width:`${k.val}%`,background:k.color}}/>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Predikat final */}
+                    <div className="flex items-center justify-between px-4 py-3 rounded-xl border"
+                      style={{background:`${c}08`,borderColor:`${c}30`}}>
+                      <span className="text-sm font-bold text-slate-600">KPI Final</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</span>
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                          style={{background:`${c}15`,color:c,border:`1px solid ${c}30`}}>
+                          {lbl}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Detail per komponen */}
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">📊 Detail Komponen (Data Saat Snapshot)</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Ticketing */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#ef444440',background:'#fef2f2'}}>
+                          <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-2">🎫 Ticketing — Skor {m.tickScore}%</div>
+                          <div className="space-y-1 text-[11px] text-slate-600">
+                            <div className="flex justify-between"><span>Handled</span><b>{m.ticketsHandled??'—'}</b></div>
+                            <div className="flex justify-between"><span>Solved</span><b className="text-emerald-600">{m.ticketsSolved??'—'}</b></div>
+                            <div className="flex justify-between"><span>Overdue</span><b className={(m.ticketsOverdue??0)>0?'text-red-600':'text-emerald-600'}>{m.ticketsOverdue??'—'}</b></div>
+                          </div>
+                        </div>
+                        {/* BAST */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#f59e0b40',background:'#fffbeb'}}>
+                          <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-2">⭐ BAST & Demo — Skor {m.bastScore}%</div>
+                          <div className="space-y-1 text-[11px] text-slate-600">
+                            <div className="flex justify-between"><span>Total Review</span><b>{m.formReviewTotal??'—'}</b></div>
+                            <div className="flex justify-between"><span>Komplain (★1-2)</span><b className={(m.formReviewLowRating??0)>0?'text-red-600':'text-emerald-600'}>{m.formReviewLowRating??0}x</b></div>
+                          </div>
+                        </div>
+                        {/* Learning Center */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#6366f140',background:'#f5f3ff'}}>
+                          <div className="text-[10px] font-bold text-violet-600 uppercase tracking-wider mb-2">🎓 Learning Center — Skor {m.lcScore}%</div>
+                          <div className="space-y-1 text-[11px] text-slate-600">
+                            <div className="flex justify-between"><span>Total Attempt</span><b>{m.lcAttempts??'—'}</b></div>
+                            <div className="flex justify-between"><span>Avg Score</span><b>{m.lcAvgScore??'—'}</b></div>
+                            <div className="flex justify-between"><span>Lulus</span><b className="text-emerald-600">{m.lcPassed??'—'}</b></div>
+                          </div>
+                        </div>
+                        {/* R&D Tech Note */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#ec489940',background:'#fdf4ff'}}>
+                          <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&D Tech Note — Skor {m.rndScore}%</div>
+                          <div className="space-y-1 text-[11px] text-slate-600">
+                            <div className="flex justify-between"><span>Tech Note Approved</span><b className="text-pink-700">{m.techNotesApproved??0}</b></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            );
+            return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
+          })()}
+
           {/* ══════════ TAB CROSS-MODULE ANALYTICS ══════════ */}
           {tab==='cross'&&(
             <div className="space-y-5">
