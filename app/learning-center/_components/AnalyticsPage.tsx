@@ -46,12 +46,39 @@ function DonutChart({ segments, size = 72, strokeWidth = 11, label = '' }: {
   );
 }
 
+type TeamType = 'IVP' | 'MLDS';
+
+// ─── Team Switch Button ────────────────────────────────────────────────────────
+function TeamSwitch({ active, onChange }: { active: TeamType; onChange: (t: TeamType) => void }) {
+  return (
+    <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+      {(['IVP', 'MLDS'] as TeamType[]).map(t => (
+        <button
+          key={t}
+          onClick={() => onChange(t)}
+          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            active === t
+              ? t === 'IVP'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-emerald-600 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {t === 'IVP' ? '🔵 PTS IVP' : '🟢 PTS MLDS'}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function AnalyticsPage() {
   const [topUsers, setTopUsers] = useState<any[]>([]);
+  const [allTopUsers, setAllTopUsers] = useState<any[]>([]);
   const [sessionStats, setSessionStats] = useState<any[]>([]);
   const [divisionStats, setDivisionStats] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeTeam, setActiveTeam] = useState<TeamType>('IVP');
 
   // Drill-down state
   const [selectedUser, setSelectedUser] = useState<{ uid: string; name: string } | null>(null);
@@ -62,22 +89,30 @@ export function AnalyticsPage() {
     const load = async () => {
       const { data: a } = await supabase
         .from('lc_quiz_attempts')
-        .select('user_id, score, passed, started_at, submitted_at, users(full_name, sales_division)')
+        .select('user_id, score, passed, started_at, submitted_at, tab_switches, users(full_name, sales_division, team_type)')
         .eq('is_submitted', true);
 
       if (a) {
         // ── Per user ──
-        const byUser: Record<string, { name: string; division: string | null; scores: number[]; passed: number }> = {};
+        const byUser: Record<string, { name: string; division: string | null; teamType: string | null; scores: number[]; passed: number; flags: number }> = {};
         a.forEach((att: any) => {
-          if (!byUser[att.user_id]) byUser[att.user_id] = { name: att.users?.full_name ?? '-', division: att.users?.sales_division ?? null, scores: [], passed: 0 };
+          if (!byUser[att.user_id]) byUser[att.user_id] = {
+            name: att.users?.full_name ?? '-',
+            division: att.users?.sales_division ?? null,
+            teamType: att.users?.team_type ?? null,
+            scores: [], passed: 0, flags: 0,
+          };
           byUser[att.user_id].scores.push(att.score ?? 0);
           if (att.passed) byUser[att.user_id].passed++;
+          byUser[att.user_id].flags += att.tab_switches ?? 0;
         });
-        setTopUsers(Object.entries(byUser).map(([uid, v]) => ({
-          uid, name: v.name, division: v.division,
+        const allUsers = Object.entries(byUser).map(([uid, v]) => ({
+          uid, name: v.name, division: v.division, teamType: v.teamType,
           avg: v.scores.reduce((s: number, n: number) => s + n, 0) / v.scores.length,
-          total: v.scores.length, passed: v.passed,
-        })).sort((a, b) => b.avg - a.avg).slice(0, 20));
+          total: v.scores.length, passed: v.passed, flags: v.flags,
+        })).sort((a, b) => b.avg - a.avg);
+        setAllTopUsers(allUsers);
+        setTopUsers(allUsers.filter(u => u.teamType === 'IVP').slice(0, 20));
 
         // ── Per Sales Division ──
         const byDiv: Record<string, { scores: number[]; passed: number; userIds: Set<string> }> = {};
@@ -130,6 +165,13 @@ export function AnalyticsPage() {
     load();
   }, []);
 
+  // Re-filter topUsers whenever team switch changes
+  useEffect(() => {
+    if (allTopUsers.length > 0) {
+      setTopUsers(allTopUsers.filter(u => u.teamType === activeTeam).slice(0, 20));
+    }
+  }, [activeTeam, allTopUsers]);
+
   // Load detail attempts when a user is selected
   useEffect(() => {
     if (!selectedUser) return;
@@ -148,6 +190,9 @@ export function AnalyticsPage() {
     ? topUsers.filter(u => u.name.toLowerCase().includes(search.toLowerCase()))
     : topUsers;
 
+  // Count users with no team_type recorded (for info banner)
+  const untaggedCount = allTopUsers.filter(u => !u.teamType).length;
+
   return (
     <div>
       <div className="flex items-center justify-between px-8 py-5 border-b border-slate-200 sticky top-0 z-10"
@@ -156,10 +201,24 @@ export function AnalyticsPage() {
           <h1 className="text-xl font-bold text-slate-800 tracking-tight">📈 Analytics</h1>
           <p className="text-sm text-slate-500 mt-0.5">Performa team & statistik quiz</p>
         </div>
-        <SearchInput value={search} onChange={setSearch} placeholder="Cari nama..." />
+        <div className="flex items-center gap-3">
+          <TeamSwitch active={activeTeam} onChange={t => { setActiveTeam(t); setSearch(''); }} />
+          <SearchInput value={search} onChange={setSearch} placeholder="Cari nama..." />
+        </div>
       </div>
 
       <div className="p-8 space-y-10">
+
+        {/* ── Info banner: untagged users warning ── */}
+        {untaggedCount > 0 && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3.5">
+            <span className="text-amber-500 text-base mt-0.5">⚠️</span>
+            <p className="text-xs text-amber-700 leading-relaxed">
+              <strong>{untaggedCount} pengguna</strong> tidak memiliki data <code>team_type</code> dan tidak akan muncul di filter IVP / MLDS.
+              Pastikan kolom <code>team_type</code> sudah diisi di tabel <code>users</code> untuk pengguna tersebut.
+            </p>
+          </div>
+        )}
 
         {sessionStats.length > 0 && (
           <section>
@@ -237,7 +296,9 @@ export function AnalyticsPage() {
 
         {/* ── Top Performers — Team ─────────────────────────────────────── */}
         <section>
-          <h3 className="text-[10px] font-bold uppercase tracking-widest mb-1 inline-flex items-center bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm">🏆 Top Performers — Team</h3>
+          <h3 className="text-[10px] font-bold uppercase tracking-widest mb-1 inline-flex items-center bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm">
+            🏆 Top Performers — {activeTeam === 'IVP' ? 'PTS IVP' : 'PTS MLDS'}
+          </h3>
           <p className="text-xs text-slate-400 mb-4 ml-1">Klik nama untuk melihat detail nilai & aktivitas per quiz</p>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-sm table-zebra">
@@ -248,6 +309,7 @@ export function AnalyticsPage() {
                   <th className="px-5 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">Quiz</th>
                   <th className="px-5 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">Score</th>
                   <th className="px-5 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">Lulus</th>
+                  <th className="px-5 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">Flags</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -280,12 +342,21 @@ export function AnalyticsPage() {
                         {u.passed}
                       </span>
                     </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {u.flags > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          ⚠️ {u.flags}×
+                        </span>
+                      ) : (
+                        <span className="text-slate-300 text-sm">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 {filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-12 text-slate-400 text-sm">
-                      {loading ? 'Memuat data...' : search ? 'Tidak ada hasil' : 'Belum ada data'}
+                    <td colSpan={6} className="text-center py-12 text-slate-400 text-sm">
+                      {loading ? 'Memuat data...' : search ? 'Tidak ada hasil' : `Belum ada data untuk tim ${activeTeam}`}
                     </td>
                   </tr>
                 )}
