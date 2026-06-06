@@ -43,7 +43,7 @@ export default function PiketShowroomPage() {
   const [summaryMonth,setSummaryMonth]=useState<number|null>(null);
   const wk=toKey(weekStart);
 
-  useEffect(()=>{ const u=getSession(); if(u) setCurrentUser(u as UserRow); },[]);
+  useEffect(()=>{ const u=getSession(); if(u) setCurrentUser(u as unknown as UserRow); },[]);
   const isAdmin=currentUser&&['admin','superadmin'].includes(currentUser.role?.toLowerCase()||'');
 
   const fetchData=useCallback(async()=>{
