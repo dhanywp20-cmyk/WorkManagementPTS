@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { setSession } from '@/lib/auth';
 import {
@@ -2111,7 +2111,7 @@ export function BrandPicSettingContent() {
 export function AdminPanelModal({ initialTab, onClose }: AdminPanelModalProps) {
   const [activeSection, setActiveSection] = useState<'settings' | 'userManagement' | 'picBrand' | 'kpiRoster'>(initialTab);
 
-  const navItems: { key: 'settings' | 'userManagement' | 'picBrand' | 'kpiRoster'; label: string; icon: JSX.Element; color: string; activeBg: string; activeBorder: string; activeText: string }[] = [
+  const navItems: { key: 'settings' | 'userManagement' | 'picBrand' | 'kpiRoster'; label: string; icon: React.ReactElement; color: string; activeBg: string; activeBorder: string; activeText: string }[] = [
     {
       key: 'settings',
       label: 'Account Settings',
