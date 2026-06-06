@@ -231,12 +231,12 @@ function HBarChart({ data, color, maxItems=6 }: { data:{label:string;value:numbe
     <div className="space-y-1.5">
       {top.map((d,i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="text-sm w-24 truncate flex-shrink-0 text-right" style={{ color:'rgba(0,0,0,0.5)' }}>{d.label}</span>
-          <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background:'rgba(0,0,0,0.06)' }}>
+          <span className="text-[11px] flex-shrink-0 text-right" style={{ color:'rgba(0,0,0,0.55)', width:'7rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{d.label}</span>
+          <div className="flex-1 h-4 rounded-full overflow-hidden" style={{ background:'rgba(0,0,0,0.06)' }}>
             <div className="h-full rounded-full transition-all duration-700"
               style={{ width:`${(d.value/max)*100}%`, background:color, opacity:0.85-i*0.07 }}/>
           </div>
-          <span className="text-sm font-bold w-6 text-right" style={{ color:'rgba(0,0,0,0.6)' }}>{d.value}</span>
+          <span className="text-[11px] font-bold w-5 text-right flex-shrink-0" style={{ color:'rgba(0,0,0,0.6)' }}>{d.value}</span>
         </div>
       ))}
     </div>
@@ -1060,18 +1060,18 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   </div>
                   {/* Donut + status list */}
                   {!loading&&kpi&&kpi.tickets.byStatus.length>0&&(
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-3">
                       <DonutChart segments={kpi.tickets.byStatus.map(s=>({value:s.count,color:s.color}))}
-                        size={52} strokeWidth={7} label={`${kpi.tickets.total}`}/>
-                      <div className="flex-1 min-w-0 space-y-0.5">
+                        size={80} strokeWidth={10} label={`${kpi.tickets.total}`}/>
+                      <div className="flex-1 min-w-0 space-y-1">
                         {kpi.tickets.byStatus.slice(0,6).map(s=>(
                           <div key={s.status} className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:s.color}}/>
-                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{minWidth:0,width:'7rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.status}</span>
-                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:s.color}}/>
+                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{width:'6.5rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.status}</span>
+                            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
                               <div className="h-full rounded-full" style={{width:`${kpi.tickets.total>0?(s.count/kpi.tickets.total)*100:0}%`,background:s.color}}/>
                             </div>
-                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{s.count}</span>
+                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-5 text-right">{s.count}</span>
                           </div>
                         ))}
                         <div className="flex justify-end mt-0.5">
@@ -1109,18 +1109,18 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   </div>
                   {/* Donut + category bar list */}
                   {!loading&&kpi&&kpi.reminders.byCategory.length>0&&(
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-3">
                       <DonutChart segments={kpi.reminders.byCategory.map(c=>({value:c.count,color:c.color}))}
-                        size={52} strokeWidth={7} label={`${kpi.reminders.total}`}/>
-                      <div className="flex-1 min-w-0 space-y-0.5">
+                        size={80} strokeWidth={10} label={`${kpi.reminders.total}`}/>
+                      <div className="flex-1 min-w-0 space-y-1">
                         {kpi.reminders.byCategory.slice(0,6).map(c=>(
                           <div key={c.cat} className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:c.color}}/>
-                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{minWidth:0,width:'7rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.cat}</span>
-                            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:c.color}}/>
+                            <span className="text-[10px] text-slate-500 flex-shrink-0" style={{width:'6.5rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.cat}</span>
+                            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:16}}>
                               <div className="h-full rounded-full" style={{width:`${kpi.reminders.total>0?(c.count/kpi.reminders.total)*100:0}%`,background:c.color}}/>
                             </div>
-                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{c.count}</span>
+                            <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-5 text-right">{c.count}</span>
                           </div>
                         ))}
                         {/* Done rate */}
@@ -1156,29 +1156,29 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                     ))}
                   </div>
                   {!loading&&kpi&&(
-                    <div className="flex items-start gap-2 mb-2">
-                      <DonutChart size={52} strokeWidth={7}
+                    <div className="flex items-start gap-3 mb-2">
+                      <DonutChart size={80} strokeWidth={10}
                         segments={[
                           {value:kpi.units.keluarThisMonth,color:'#f59e0b'},
                           {value:kpi.units.masukThisMonth, color:'#10b981'},
                           {value:Math.max(kpi.units.totalLogs-kpi.units.keluarThisMonth-kpi.units.masukThisMonth,0),color:'#e2e8f0'},
                         ]} label=""/>
-                      <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"/>
+                          <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"/>
                           <span className="text-[10px] text-slate-500 flex-shrink-0 w-10">Keluar</span>
-                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
                             <div className="h-full rounded-full bg-amber-400" style={{width:`${kpi.units.totalLogs>0?(kpi.units.keluarThisMonth/kpi.units.totalLogs)*100:0}%`}}/>
                           </div>
-                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{kpi.units.keluarThisMonth}</span>
+                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-5 text-right">{kpi.units.keluarThisMonth}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"/>
+                          <div className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"/>
                           <span className="text-[10px] text-slate-500 flex-shrink-0 w-10">Masuk</span>
-                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
                             <div className="h-full rounded-full bg-emerald-500" style={{width:`${kpi.units.totalLogs>0?(kpi.units.masukThisMonth/kpi.units.totalLogs)*100:0}%`}}/>
                           </div>
-                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{kpi.units.masukThisMonth}</span>
+                          <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-5 text-right">{kpi.units.masukThisMonth}</span>
                         </div>
                       </div>
                     </div>
@@ -1186,22 +1186,22 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   {/* Pengguna platform — hanya admin, inline di bawah unit */}
                   {scope.kind==='admin'&&!loading&&kpi&&(
                     <div className="border-t border-slate-100 pt-2 mt-1">
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-3">
                         <DonutChart
                           segments={(kpi.users.byRole).map((r,i)=>({value:r.count,color:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}))}
-                          size={52} strokeWidth={7} label={`${kpi.users.total}`}/>
+                          size={80} strokeWidth={10} label={`${kpi.users.total}`}/>
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">👥 Pengguna</div>
-                          <div className="space-y-0.5">
+                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5">👥 Pengguna</div>
+                          <div className="space-y-1">
                             {kpi.users.byRole.map((r,i)=>(
                               <div key={r.role} className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                <div className="w-2 h-2 rounded-full flex-shrink-0"
                                   style={{background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
                                 <span className="text-[10px] text-slate-500 flex-shrink-0 uppercase" style={{width:'4.5rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.role}</span>
-                                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
+                                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{background:'#f1f5f9',minWidth:12}}>
                                   <div className="h-full rounded-full" style={{width:`${kpi.users.total>0?(r.count/kpi.users.total)*100:0}%`,background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-4 text-right">{r.count}</span>
+                                <span className="text-[10px] font-bold text-slate-700 flex-shrink-0 w-5 text-right">{r.count}</span>
                               </div>
                             ))}
                           </div>
@@ -2106,7 +2106,7 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
                     <div className="flex items-start gap-5">
                       <div className="flex-shrink-0">
-                        <DonutChart size={72} strokeWidth={9}
+                      <DonutChart size={80} strokeWidth={10}
                           segments={(kpi?.reminders.byCategory??[]).map(c=>({value:c.count,color:c.color}))}
                           label={`${kpi?.reminders.total??0}`}/>
                       </div>
@@ -2137,23 +2137,32 @@ export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
                   {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
                     (kpi?.reminders.byProduct??[]).length === 0
                       ? <p className="text-sm text-center py-8 text-slate-400">Tidak ada data produk</p>
-                      : <div className="space-y-3 max-h-56 overflow-y-auto pr-1" style={{scrollbarWidth:'thin'}}>
+                      : <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1" style={{scrollbarWidth:'thin'}}>
                           {(kpi?.reminders.byProduct??[]).map(p=>{
                             const total = p.byCategory.reduce((s,c)=>s+c.count,0);
                             return (
-                              <div key={p.product} className="flex items-start gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-[12px] font-bold text-slate-700 truncate leading-snug">{p.product}</div>
-                                  <div className="flex flex-wrap gap-1.5 mt-1">
-                                    {p.byCategory.map(c=>(
-                                      <span key={c.cat} className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                                        style={{background:(CATEGORY_COLORS[c.cat]||'#64748b')+'18',color:CATEGORY_COLORS[c.cat]||'#64748b',border:`1px solid ${(CATEGORY_COLORS[c.cat]||'#e2e8f0')}40`}}>
-                                        {c.cat} <b>{c.count}</b>
-                                      </span>
-                                    ))}
-                                  </div>
+                              <div key={p.product} className="rounded-xl border border-slate-100 bg-slate-50/60 p-2.5">
+                                {/* Produk header */}
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-[11px] font-bold text-slate-700 leading-snug" style={{maxWidth:'85%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.product}</span>
+                                  <span className="text-[11px] font-black text-slate-500 flex-shrink-0 ml-1">{total}</span>
                                 </div>
-                                <span className="text-sm font-black text-slate-500 flex-shrink-0 pt-0.5">{total}</span>
+                                {/* Kategori: satu per baris */}
+                                <div className="space-y-1">
+                                  {p.byCategory.map(c=>{
+                                    const col = CATEGORY_COLORS[c.cat]||'#64748b';
+                                    return (
+                                      <div key={c.cat} className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:col}}/>
+                                        <span className="text-[10px] text-slate-500 flex-shrink-0" style={{width:'8rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.cat}</span>
+                                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:`${col}20`,minWidth:12}}>
+                                          <div className="h-full rounded-full" style={{width:`${total>0?(c.count/total)*100:0}%`,background:col}}/>
+                                        </div>
+                                        <span className="text-[10px] font-bold flex-shrink-0 w-4 text-right" style={{color:col}}>{c.count}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
                               </div>
                             );
                           })}
