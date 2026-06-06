@@ -26,8 +26,8 @@ export default function TicketingSystem() {
   const router = useRouter();
   const ticketListRef = useRef<HTMLDivElement>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; msg: string } | null>(null);
-  const notify = (type: 'success' | 'error' | 'info', msg: string) => { setToast({ type, msg }); setTimeout(() => setToast(null), 4000); };
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const notify = (type: 'success' | 'error', msg: string) => { setToast({ type, msg }); setTimeout(() => setToast(null), 4000); };
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [loginErr, setLoginErr] = useState("");
@@ -235,7 +235,7 @@ export default function TicketingSystem() {
       if (error) {
         const utcHour = (hour - 7 + 24) % 24;
         const cronExpr = `${minute} ${utcHour} * * ${dayOfWeek}`;
-        notify("info", "Setting disimpan! Jalankan SQL di SQL Editor Supabase untuk mengaktifkan jadwal baru.");
+        notify("success", "Setting disimpan! Jalankan SQL di SQL Editor Supabase untuk mengaktifkan jadwal baru.");
       } else notify("success", `Jadwal reminder berhasil diubah! ${getCronDisplay()}`);
       setShowReminderSchedule(false);
     } catch (e: any) { notify("error", "Error: " + e.message); } finally { setReminderSaving(false); }
