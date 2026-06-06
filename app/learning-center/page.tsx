@@ -102,7 +102,7 @@ function LearningCenter({ currentUser }: { currentUser: User }) {
 
   return (
     <div
-      className="flex flex-col min-h-screen font-sans"
+      className="flex flex-col h-screen overflow-hidden font-sans"
       style={{
         backgroundImage: "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('/IVP_Background.png')",
         backgroundSize: 'cover',
@@ -110,12 +110,12 @@ function LearningCenter({ currentUser }: { currentUser: User }) {
         backgroundAttachment: 'fixed',
       }}
     >
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
         {isAdmin
           ? <AdminTopNav view={adminView} onChange={changeAdminView} />
           : <TeamTopNav view={teamView} onChange={changeTeamView} />}
 
-        <div className="flex-1 overflow-y-auto" style={{ minHeight: 'calc(100vh - 100px)' }}>
+        <div className="flex-1 overflow-y-auto">
           {loading ? <LoadingView /> : (
             <div key={contentKey} className="lc-page-enter">
               {isAdmin ? (
