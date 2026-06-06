@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, supabaseServices } from "@/lib/supabase";
 import { setSession, clearSession, getSession } from "@/lib/auth";
@@ -22,7 +22,7 @@ import {
   Toast,
 } from "@/components/shared";
 
-export default function TicketingSystem() {
+function TicketingSystemInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ticketListRef = useRef<HTMLDivElement>(null);
@@ -3358,5 +3358,13 @@ export default function TicketingSystem() {
         input:focus, select:focus, textarea:focus { outline: none; }
       `}</style>
     </div>
+  );
+}
+
+export default function TicketingSystem() {
+  return (
+    <Suspense>
+      <TicketingSystemInner />
+    </Suspense>
   );
 }
