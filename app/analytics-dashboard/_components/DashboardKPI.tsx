@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
-import { User } from './shared';
+import { User } from '@/app/dashboard/_components/shared';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -155,15 +155,15 @@ function getMonday() {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function MiniDonut({ segments, size = 72 }: { segments: { value: number; color: string }[]; size?: number }) {
+function MiniDonut({ segments, size = 56 }: { segments: { value: number; color: string }[]; size?: number }) {
   const total = segments.reduce((s, x) => s + x.value, 0);
-  if (!total) return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}><circle cx={size/2} cy={size/2} r={size/2-5} fill="none" stroke="#e2e8f0" strokeWidth={8}/></svg>;
-  const r = size/2-6, circ = 2*Math.PI*r; let off = 0;
+  if (!total) return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}><circle cx={size/2} cy={size/2} r={size/2-4} fill="none" stroke="#e2e8f0" strokeWidth={7}/></svg>;
+  const r = size/2-5, circ = 2*Math.PI*r; let off = 0;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform:'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e8ecf0" strokeWidth={8}/>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e8ecf0" strokeWidth={7}/>
       {segments.map((seg,i) => { const pct=seg.value/total, dash=pct*circ, gap=circ-dash;
-        const el=<circle key={i} cx={size/2} cy={size/2} r={r} fill="none" stroke={seg.color} strokeWidth={8} strokeDasharray={`${dash} ${gap}`} strokeDashoffset={-off*circ} strokeLinecap="butt"/>;
+        const el=<circle key={i} cx={size/2} cy={size/2} r={r} fill="none" stroke={seg.color} strokeWidth={7} strokeDasharray={`${dash} ${gap}`} strokeDashoffset={-off*circ} strokeLinecap="butt"/>;
         off+=pct; return el; })}
     </svg>
   );
@@ -187,18 +187,18 @@ function StatCard({ icon, label, value, sub, color, sparkline, donut, loading }:
 }) {
   return (
     <div className="rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden"
-      style={{ background:'#ffffff', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)' }}>
+      style={{ background:'rgba(255,255,255,0.93)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)' }}>
       <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.06]"
         style={{ background:color, transform:'translate(30%,-30%)' }}/>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1">
             <span className="text-sm">{icon}</span>
-            <span className="text-[11px] font-semibold tracking-wide uppercase truncate" style={{ color:'rgba(0,0,0,0.4)' }}>{label}</span>
+            <span className="text-sm font-semibold tracking-wide uppercase truncate" style={{ color:'rgba(0,0,0,0.4)' }}>{label}</span>
           </div>
           {loading ? <div className="h-7 w-16 rounded animate-pulse" style={{ background:'rgba(0,0,0,0.08)' }}/> :
             <div className="text-2xl font-black tracking-tight" style={{ color }}>{value}</div>}
-          {sub && <div className="text-[11px] mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.35)' }}>{sub}</div>}
+          {sub && <div className="text-sm mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.35)' }}>{sub}</div>}
         </div>
         <div className="flex flex-col items-end gap-1 flex-shrink-0">
           {donut && <MiniDonut segments={donut.segments}/>}
@@ -216,8 +216,8 @@ function SectionHeader({ icon, title, sub, right }: { icon:string; title:string;
         <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0"
           style={{ background:'rgba(190,18,60,0.1)', border:'1px solid rgba(190,18,60,0.15)' }}>{icon}</div>
         <div>
-          <h2 className="text-sm font-bold tracking-wide" style={{ color:'rgba(0,0,0,0.75)' }}>{title}</h2>
-          {sub && <p className="text-[11px]" style={{ color:'rgba(0,0,0,0.4)' }}>{sub}</p>}
+          <h2 className="text-base font-bold tracking-wide" style={{ color:'rgba(0,0,0,0.75)' }}>{title}</h2>
+          {sub && <p className="text-sm" style={{ color:'rgba(0,0,0,0.4)' }}>{sub}</p>}
         </div>
       </div>
       {right}
@@ -231,12 +231,12 @@ function HBarChart({ data, color, maxItems=6 }: { data:{label:string;value:numbe
     <div className="space-y-1.5">
       {top.map((d,i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="text-[11px] w-24 truncate flex-shrink-0 text-right" style={{ color:'rgba(0,0,0,0.5)' }}>{d.label}</span>
+          <span className="text-sm w-24 truncate flex-shrink-0 text-right" style={{ color:'rgba(0,0,0,0.5)' }}>{d.label}</span>
           <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background:'rgba(0,0,0,0.06)' }}>
             <div className="h-full rounded-full transition-all duration-700"
               style={{ width:`${(d.value/max)*100}%`, background:color, opacity:0.85-i*0.07 }}/>
           </div>
-          <span className="text-[11px] font-bold w-6 text-right" style={{ color:'rgba(0,0,0,0.6)' }}>{d.value}</span>
+          <span className="text-sm font-bold w-6 text-right" style={{ color:'rgba(0,0,0,0.6)' }}>{d.value}</span>
         </div>
       ))}
     </div>
@@ -253,15 +253,15 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
         style={{ background:`${s.dot}18` }}>{entry.icon}</div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-xs font-bold truncate" style={{ color:'rgba(0,0,0,0.75)' }}>{entry.action}</span>
-          <span className="text-[10px] flex-shrink-0" style={{ color:'rgba(0,0,0,0.35)' }}>{fmt}</span>
+          <span className="text-sm font-bold truncate" style={{ color:'rgba(0,0,0,0.75)' }}>{entry.action}</span>
+          <span className="text-sm flex-shrink-0" style={{ color:'rgba(0,0,0,0.35)' }}>{fmt}</span>
         </div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background:`${s.dot}18`, color:s.text }}>{entry.module}</span>
-          <span className="text-[10px]" style={{ color:'rgba(0,0,0,0.4)' }}>by <b style={{ color:'rgba(0,0,0,0.6)' }}>{entry.actor}</b></span>
-          {entry.target && <span className="text-[10px] truncate max-w-[180px]" style={{ color:'rgba(0,0,0,0.35)' }}>→ {entry.target}</span>}
+          <span className="text-sm font-semibold px-1.5 py-0.5 rounded-full" style={{ background:`${s.dot}18`, color:s.text }}>{entry.module}</span>
+          <span className="text-sm" style={{ color:'rgba(0,0,0,0.4)' }}>by <b style={{ color:'rgba(0,0,0,0.6)' }}>{entry.actor}</b></span>
+          {entry.target && <span className="text-sm truncate max-w-[180px]" style={{ color:'rgba(0,0,0,0.35)' }}>→ {entry.target}</span>}
         </div>
-        {entry.detail && <p className="text-[10px] mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.3)' }}>{entry.detail}</p>}
+        {entry.detail && <p className="text-sm mt-0.5 truncate" style={{ color:'rgba(0,0,0,0.3)' }}>{entry.detail}</p>}
       </div>
     </div>
   );
@@ -276,7 +276,7 @@ function ScopeBadge({ scope }: { scope: Scope }) {
     none:      { label: '-',                  color: '#6b7280', icon: '—'  },
   }[scope.kind];
   return (
-    <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full"
+    <span className="flex items-center gap-1 text-sm font-bold px-2 py-1 rounded-full"
       style={{ background:`${cfg.color}18`, color:cfg.color, border:`1px solid ${cfg.color}30` }}>
       {cfg.icon} {cfg.label}
     </span>
@@ -285,7 +285,9 @@ function ScopeBadge({ scope }: { scope: Scope }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function DashboardKPI({ currentUser }: { currentUser: User }) {
+interface DashboardKPIProps { currentUser: User; }
+
+export default function DashboardKPI({ currentUser }: DashboardKPIProps) {
   const [scope, setScope]           = useState<Scope>({ kind: 'none' });
   const [scopeReady, setScopeReady] = useState(false);
   const [kpi, setKpi]               = useState<KPIData | null>(null);
@@ -320,6 +322,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
   const [showStartKPI, setShowStartKPI]   = useState(false);
   const [savingSnapshot, setSavingSnapshot] = useState(false);
   const [expandedSnapshot, setExpandedSnapshot] = useState<string | null>(null);
+  const [selectedSnapMember, setSelectedSnapMember] = useState<string | null>(null); // popup detail member di Riwayat KPI
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
   // ── 1. Resolve scope ──────────────────────────────────────────────────────
@@ -572,7 +575,9 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
       const effectiveEnd = `${year}-${pad(endMonth)}-${endDay}`;
 
       // Get team members
-      let membersQ = supabase.from('users').select('id,full_name,jabatan,team_type,role');
+      let membersQ = supabase.from('users').select('id,full_name,jabatan,team_type,role,kpi_enabled');
+      // Hanya tampilkan member yang diaktifkan dalam KPI Roster
+      membersQ = membersQ.eq('kpi_enabled', true);
       if (scope.kind === 'pts_sup') {
         membersQ = membersQ.eq('role', 'team').eq('team_type', scope.ptsTeamType ?? '');
       } else if (scope.kind === 'admin') {
@@ -860,13 +865,13 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
   const scopeTitle = scope.kind==='admin' ? 'Dashboard'
     : scope.kind==='pts_sup' ? `Summary ${scope.ptsTeamType}`
-    : scope.kind==='team' ? `KPI Saya — ${currentUser.team_type ?? ''}`
+    : scope.kind==='team' ? 'Dashboard'
     : 'KPI Dashboard';
 
   const TAB_CONFIG = [
     {key:'analytics' as const, icon:'📊', label:'Analytics'},
     {key:'kpi_team'  as const, icon:'👥', label:'KPI Team'},
-    {key:'history'   as const, icon:'📋', label:'Riwayat KPI'},
+    ...(scope.kind !== 'team' ? [{key:'history' as const, icon:'📋', label:'Riwayat KPI'}] : []),
     {key:'cross'     as const, icon:'🔀', label:'Cross-Module'},
     {key:'audit'     as const, icon:'🔍', label:'Audit Trail'},
   ];
@@ -874,7 +879,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
   // ─── LC-style design helpers ────────────────────────────────────────────────
   function SectionPill({ icon, children }: { icon: string; children: React.ReactNode }) {
     return (
-      <h3 className="text-[10px] font-bold uppercase tracking-widest mb-4 inline-flex items-center gap-1.5 bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm border border-slate-200">
+      <h3 className="text-sm font-bold uppercase tracking-widest mb-4 inline-flex items-center gap-1.5 bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm border border-slate-200">
         <span>{icon}</span>{children}
       </h3>
     );
@@ -889,7 +894,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
     const total = segments.reduce((s, seg) => s + seg.value, 0);
     if (total === 0) return (
       <div style={{ width: size, height: size }} className="flex items-center justify-center flex-shrink-0">
-        <span className="text-[10px] text-slate-300 font-bold">—</span>
+        <span className="text-sm text-slate-300 font-bold">—</span>
       </div>
     );
     let cumBefore = 0;
@@ -909,7 +914,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
         </svg>
         {label && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[11px] font-black text-slate-700">{label}</span>
+            <span className="text-sm font-black text-slate-700">{label}</span>
           </div>
         )}
       </div>
@@ -943,15 +948,11 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full" style={{ animation:'fadeInUp 0.35s ease forwards' }}>
+    <div className="flex flex-col flex-1 overflow-hidden" style={{ animation:'fadeInUp 0.35s ease forwards', background:'rgba(0,0,0,0.10)' }}>
 
-      {/* ══ LC-style wrapper: white/90 backdrop on background image ══ */}
-      <div className="rounded-3xl overflow-hidden"
-        style={{ background:'rgba(255,255,255,0.93)', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)', border:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 4px 32px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)' }}>
-
-        {/* ── Top bar (LC style: white/97 + red bottom border) ── */}
-        <div className="flex items-center justify-between gap-4 px-6 py-4"
-          style={{ background:'rgba(255,255,255,0.97)', backdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
+        {/* ── Top bar — sticky menempel di atas seperti Learning Center ── */}
+        <div className="flex items-center justify-between gap-4 px-6 py-4 flex-shrink-0 sticky top-0 z-50"
+          style={{ background:'rgba(255,255,255,0.92)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'3px solid #dc2626' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -963,13 +964,13 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 <span className="text-sm font-bold text-slate-800 leading-tight">{scopeTitle}</span>
                 <ScopeBadge scope={scope}/>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium">SYNC {lastRefresh.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+              <span className="text-sm text-slate-400 font-medium">SYNC {lastRefresh.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <button onClick={()=>{ setLoading(true); setAuditLoading(true); fetchKPI(); fetchAudit(); if(scope.kind==='team')fetchKPITeam(); setLastRefresh(new Date()); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-slate-200 transition-all">
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-slate-200 transition-all">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               Sync
             </button>
@@ -977,7 +978,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
             <nav className="flex items-center gap-1">
               {TAB_CONFIG.map(t=>(
                 <button key={t.key} onClick={()=>setTab(t.key)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-lg border-b-2 transition-all
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-all
                     ${tab===t.key ? 'text-blue-700 border-blue-600 bg-blue-50/60 font-semibold' : 'text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50'}`}>
                   <span className="text-sm">{t.icon}</span>{t.label}
                 </button>
@@ -986,8 +987,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
           </div>
         </div>
 
-        {/* ── Content area ── */}
-        <div className="p-4 space-y-5">
+        {/* ── Content area — scrollable, transparan ── */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-5">
 
           {/* ══════════ TAB ANALYTICS ══════════ */}
           {tab==='analytics' && (
@@ -999,8 +1000,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* PIKET SHOWROOM */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">🏪 Piket Showroom</span>
-                    <span className="text-[9px] text-slate-400">{new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🏪 Piket Showroom</span>
+                    <span className="text-sm text-slate-400">{new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</span>
                   </div>
                   {/* PIC row */}
                   <div className="flex flex-col gap-1.5 mb-2">
@@ -1010,12 +1011,12 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       {team:'MLDS', person:kpi?.piket.todayMlds, c:'#3b82f6', bg:'#eff6ff'},
                     ].map(p=>(
                       <div key={p.team} className="flex items-center gap-1.5">
-                        <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md flex-shrink-0"
+                        <span className="text-sm font-black px-1.5 py-0.5 rounded-md flex-shrink-0"
                           style={{background:p.bg,color:p.c}}>{p.team}</span>
                         {loading
                           ? <div className="h-2.5 w-20 rounded animate-pulse bg-slate-100 flex-1"/>
                           : <span className="text-sm font-semibold text-slate-700 truncate flex-1">
-                              {p.person ?? <span className="italic text-slate-300 text-[10px]">Belum diisi</span>}
+                              {p.person ?? <span className="italic text-slate-300 text-sm">Belum diisi</span>}
                             </span>}
                       </div>
                     ))}
@@ -1024,13 +1025,13 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   {!loading&&kpi&&(
                     <div>
                       <div className="flex justify-between mb-1">
-                        <span className="text-[9px] text-slate-400">Minggu ini</span>
-                        <span className="text-[11px] font-bold text-slate-600">{kpi.piket.weekFilled}/{kpi.piket.weekTotal} hari · {kpi.piket.kegiatanToday} tamu</span>
+                        <span className="text-sm text-slate-400">Minggu ini</span>
+                        <span className="text-sm font-bold text-slate-600">{kpi.piket.weekFilled}/{kpi.piket.weekTotal} hari · {kpi.piket.kegiatanToday} tamu</span>
                       </div>
                       <MiniBar value={kpi.piket.weekFilled} max={kpi.piket.weekTotal} color="#10b981" h={5}/>
                       <div className="flex justify-between mt-0.5">
-                        <span className="text-[8px] text-slate-300">0%</span>
-                        <span className="text-[8px] font-bold text-emerald-600">{Math.min(100,Math.round((kpi.piket.weekFilled/Math.max(kpi.piket.weekTotal,1))*100))}% terpenuhi</span>
+                        <span className="text-sm text-slate-300">0%</span>
+                        <span className="text-sm font-bold text-emerald-600">{Math.min(100,Math.round((kpi.piket.weekFilled/Math.max(kpi.piket.weekTotal,1))*100))}% terpenuhi</span>
                       </div>
                     </div>
                   )}
@@ -1039,8 +1040,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* TICKET TROUBLESHOOTING */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">🎫 Ticket</span>
-                    <span className="text-[9px] text-slate-400">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua'}</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🎫 Ticket</span>
+                    <span className="text-sm text-slate-400">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua'}</span>
                   </div>
                   {/* Mini stat row */}
                   <div className="grid grid-cols-4 gap-1 mb-2">
@@ -1053,7 +1054,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
                         {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
                           <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                        <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -1066,14 +1067,14 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         {kpi.tickets.byStatus.map(s=>(
                           <div key={s.status} className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:s.color}}/>
-                            <span className="text-[11px] text-slate-500 flex-1 truncate">{s.status}</span>
+                            <span className="text-sm text-slate-500 flex-1 truncate">{s.status}</span>
                             <MiniBar value={s.count} max={kpi.tickets.total} color={s.color} h={3}/>
-                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{s.count}</span>
+                            <span className="text-sm font-bold text-slate-700 w-5 text-right">{s.count}</span>
                           </div>
                         ))}
                         <div className="flex justify-end mt-1">
-                          <span className="text-[10px] text-slate-400">Avg resolusi </span>
-                          <span className="text-[10px] font-black text-rose-500 ml-1">{kpi.tickets.avgResolutionDays} hari</span>
+                          <span className="text-sm text-slate-400">Avg resolusi </span>
+                          <span className="text-sm font-black text-rose-500 ml-1">{kpi.tickets.avgResolutionDays} hari</span>
                         </div>
                       </div>
                     </div>
@@ -1087,7 +1088,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* REMINDER SCHEDULE */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">📅 Reminder Schedule</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">📅 Reminder Schedule</span>
                   </div>
                   {/* Stat row */}
                   <div className="grid grid-cols-4 gap-1 mb-2">
@@ -1100,7 +1101,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
                         {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
                           <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                        <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -1113,15 +1114,15 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         {kpi.reminders.byCategory.map(c=>(
                           <div key={c.cat} className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:c.color}}/>
-                            <span className="text-[11px] text-slate-500 w-20 truncate">{c.cat}</span>
+                            <span className="text-sm text-slate-500 w-20 truncate">{c.cat}</span>
                             <MiniBar value={c.count} max={kpi.reminders.total} color={c.color} h={3}/>
-                            <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{c.count}</span>
+                            <span className="text-sm font-bold text-slate-700 w-5 text-right">{c.count}</span>
                           </div>
                         ))}
                         {/* Done rate */}
                         <div className="flex justify-end mt-1">
-                          <span className="text-[10px] text-slate-400">Done rate </span>
-                          <span className="text-[10px] font-black text-emerald-600 ml-1">
+                          <span className="text-sm text-slate-400">Done rate </span>
+                          <span className="text-sm font-black text-emerald-600 ml-1">
                             {kpi.reminders.total>0?Math.round((kpi.reminders.done/kpi.reminders.total)*100):0}%
                           </span>
                         </div>
@@ -1133,8 +1134,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* UNIT MOVEMENT + PENGGUNA (admin) / hanya unit (pts_sup) */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">🚚 Unit Movement</span>
-                    <span className="text-[10px] text-slate-400">Bulan ini</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🚚 Unit Movement</span>
+                    <span className="text-sm text-slate-400">Bulan ini</span>
                   </div>
                   {/* Unit stats */}
                   <div className="grid grid-cols-3 gap-1 mb-2">
@@ -1146,7 +1147,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'12'}}>
                         {loading ? <div className="h-4 w-6 rounded animate-pulse bg-slate-100 mb-0.5"/> :
                           <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                        <span className="text-[8px] text-slate-400 mt-0.5">{s.label}</span>
+                        <span className="text-sm text-slate-400 mt-0.5">{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -1161,15 +1162,15 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div className="flex-1 space-y-0.5">
                         <div className="flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-amber-400"/>
-                          <span className="text-[9px] text-slate-500 flex-1">Keluar</span>
+                          <span className="text-sm text-slate-500 flex-1">Keluar</span>
                           <MiniBar value={kpi.units.keluarThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#f59e0b" h={3}/>
-                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.keluarThisMonth}</span>
+                          <span className="text-sm font-bold text-slate-700 w-5 text-right">{kpi.units.keluarThisMonth}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>
-                          <span className="text-[9px] text-slate-500 flex-1">Masuk</span>
+                          <span className="text-sm text-slate-500 flex-1">Masuk</span>
                           <MiniBar value={kpi.units.masukThisMonth} max={Math.max(kpi.units.totalLogs,1)} color="#10b981" h={3}/>
-                          <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{kpi.units.masukThisMonth}</span>
+                          <span className="text-sm font-bold text-slate-700 w-5 text-right">{kpi.units.masukThisMonth}</span>
                         </div>
                       </div>
                     </div>
@@ -1182,15 +1183,15 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                           segments={(kpi.users.byRole).map((r,i)=>({value:r.count,color:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}))}
                           size={34} strokeWidth={5} label={`${kpi.users.total}`}/>
                         <div className="flex-1">
-                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">👥 Pengguna</div>
+                          <div className="text-sm font-black text-slate-400 uppercase tracking-wider mb-1">👥 Pengguna</div>
                           <div className="space-y-0.5">
                             {kpi.users.byRole.map((r,i)=>(
                               <div key={r.role} className="flex items-center gap-1">
                                 <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                   style={{background:['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]}}/>
-                                <span className="text-[9px] text-slate-500 flex-1 uppercase">{r.role}</span>
+                                <span className="text-sm text-slate-500 flex-1 uppercase">{r.role}</span>
                                 <MiniBar value={r.count} max={kpi.users.total} color={['#6366f1','#10b981','#f59e0b','#ef4444','#0891b2'][i%5]} h={3}/>
-                                <span className="text-[11px] font-bold text-slate-700 w-5 text-right">{r.count}</span>
+                                <span className="text-sm font-bold text-slate-700 w-5 text-right">{r.count}</span>
                               </div>
                             ))}
                           </div>
@@ -1205,7 +1206,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
               {scope.kind==='admin'&&(
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">🎓 Learning Center</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">🎓 Learning Center</span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {/* Stat mini col */}
@@ -1219,7 +1220,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         <div key={s.label} className="flex flex-col items-center p-1.5 rounded-xl" style={{background:s.c+'10'}}>
                           {loading?<div className="h-4 w-8 rounded animate-pulse bg-slate-100 mb-0.5"/>:
                             <span className="text-base font-black leading-none" style={{color:s.c}}>{s.value}</span>}
-                          <span className="text-[10px] text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
+                          <span className="text-sm text-slate-400 mt-0.5 text-center leading-tight font-medium">{s.label}</span>
                         </div>
                       ))}
                     </div>
@@ -1234,8 +1235,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                             ]}
                             size={52} strokeWidth={8}
                             label={`${kpi.learning.totalSessions>0?Math.round((kpi.learning.completedSessions/kpi.learning.totalSessions)*100):0}%`}/>
-                          <span className="text-[8px] font-bold text-slate-500">Pass Rate</span>
-                          <span className="text-[8px] text-slate-400">{kpi.learning.completedSessions}✓ · {kpi.learning.totalSessions-kpi.learning.completedSessions}✗</span>
+                          <span className="text-sm font-bold text-slate-500">Pass Rate</span>
+                          <span className="text-sm text-slate-400">{kpi.learning.completedSessions}✓ · {kpi.learning.totalSessions-kpi.learning.completedSessions}✗</span>
                         </div>
                         {/* Avg score donut */}
                         <div className="flex flex-col items-center justify-center gap-1">
@@ -1245,8 +1246,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                               {value:Math.max(100-kpi.learning.avgScore,0),color:'#f1f5f9'},
                             ]}
                             size={52} strokeWidth={8} label={`${kpi.learning.avgScore}`}/>
-                          <span className="text-[8px] font-bold text-slate-500">Avg Score</span>
-                          <span className="text-[8px] text-slate-400">{kpi.learning.totalParticipants} peserta</span>
+                          <span className="text-sm font-bold text-slate-500">Avg Score</span>
+                          <span className="text-sm text-slate-400">{kpi.learning.totalParticipants} peserta</span>
                         </div>
                       </>
                     )}
@@ -1255,9 +1256,9 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   {!loading&&kpi&&kpi.learning.totalSessions>0&&(
                     <div className="mt-2 pt-2 border-t border-slate-100">
                       <div className="flex items-center gap-2">
-                        <span className="text-[8px] text-slate-400 w-10 flex-shrink-0">Lulus</span>
+                        <span className="text-sm text-slate-400 w-10 flex-shrink-0">Lulus</span>
                         <MiniBar value={kpi.learning.completedSessions} max={kpi.learning.totalSessions} color="#10b981" h={5}/>
-                        <span className="text-[8px] text-slate-400 w-10 flex-shrink-0">Tidak</span>
+                        <span className="text-sm text-slate-400 w-10 flex-shrink-0">Tidak</span>
                         <MiniBar value={kpi.learning.totalSessions-kpi.learning.completedSessions} max={kpi.learning.totalSessions} color="#ef4444" h={5}/>
                       </div>
                     </div>
@@ -1296,7 +1297,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                               const newStart = p === '1y' ? 1 : (kpiTeam.filterStartMonth <= 6 ? 1 : 7);
                               setKpiTeam(prev=>({...prev, filterPeriod:p, filterStartMonth:newStart}));
                             }}
-                            className={`px-3 py-1.5 text-[11px] font-bold transition-all ${kpiTeam.filterPeriod===p?'bg-blue-600 text-white':'text-slate-500 hover:bg-slate-50'}`}>
+                            className={`px-3 py-1.5 text-sm font-bold transition-all ${kpiTeam.filterPeriod===p?'bg-blue-600 text-white':'text-slate-500 hover:bg-slate-50'}`}>
                             {p==='6m'?'6 Bulan':'1 Tahun'}
                           </button>
                         ))}
@@ -1306,7 +1307,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         <select
                           value={kpiTeam.filterStartMonth}
                           onChange={e => setKpiTeam(prev=>({...prev, filterStartMonth:Number(e.target.value)}))}
-                          className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-300"
+                          className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-300"
                         >
                           {[{v:1,l:'Jan – Jun'},{v:2,l:'Feb – Jul'},{v:3,l:'Mar – Agt'},{v:4,l:'Apr – Sep'},{v:5,l:'Mei – Okt'},{v:6,l:'Jun – Nov'},{v:7,l:'Jul – Des'}].map(o=>(
                             <option key={o.v} value={o.v}>{o.l}</option>
@@ -1317,24 +1318,24 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <select
                         value={kpiTeam.filterYear}
                         onChange={e => setKpiTeam(prev=>({...prev, filterYear:Number(e.target.value)}))}
-                        className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-300"
+                        className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-300"
                       >
                         {[2024,2025,2026,2027].map(y=>(<option key={y} value={y}>{y}</option>))}
                       </select>
                       {/* Periode badge aktif */}
-                      <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                      <span className="text-sm font-bold px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
                         📅 {periodLabel}
                       </span>
                       <button
                         onClick={()=>fetchKPITeam()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         Refresh
                       </button>
                   <button
                     onClick={()=>setShowSettings(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-violet-600 hover:text-white hover:bg-violet-600 bg-white border border-violet-200 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-violet-600 hover:text-white hover:bg-violet-600 bg-white border border-violet-200 transition-all"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Pengaturan KPI
@@ -1342,7 +1343,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   {/* ── Mulai KPI (Snapshot) ── */}
                   <button
                     onClick={() => setShowStartKPI(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-rose-600 hover:text-white hover:bg-rose-600 bg-white border border-rose-200 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-rose-600 hover:text-white hover:bg-rose-600 bg-white border border-rose-200 transition-all"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
                     Mulai KPI {kpiTeam.filterYear}
@@ -1541,7 +1542,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         await new Promise(res => setTimeout(res, 500));
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-600 hover:text-white hover:bg-emerald-600 bg-white border border-emerald-200 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-emerald-600 hover:text-white hover:bg-emerald-600 bg-white border border-emerald-200 transition-all"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Excel {kpiTeam.filterYear} ({kpiTeam.filterPeriod==='6m'?'6bln':'1thn'})
@@ -1649,7 +1650,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 transition-all"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Rekap Tim {kpiTeam.filterYear}
@@ -1660,7 +1661,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
               </div>
 
               {/* Legend */}
-              <div className="bg-blue-50/80 border border-blue-200 rounded-xl px-4 py-3 text-[11px] text-blue-700 leading-relaxed">
+              <div className="bg-blue-50/80 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700 leading-relaxed">
                 <b>📌 Keterangan:</b> Data ✅ otomatis dari platform.
                 <span className="ml-2 font-semibold">🎫 Ticketing {Math.round(kpiSettings.ticketOverdueWeight*100)}%</span> (nilai penuh jika 0 overdue),
                 <span className="ml-1 font-semibold">⭐ BAST &amp; Demo {Math.round(kpiSettings.bastWeight*100)}%</span> (nilai penuh jika tidak ada komplain/bintang &lt;3),
@@ -1739,13 +1740,13 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                         {member.name.charAt(0)}
                       </div>
                       {/* Name */}
-                      <div className="text-[10px] font-bold text-slate-700 text-center leading-tight w-full truncate"
+                      <div className="text-sm font-bold text-slate-700 text-center leading-tight w-full truncate"
                         title={member.name}>{member.name.split(' ')[0]}</div>
                       {/* KPI Score */}
                       <div className="text-sm font-black leading-none" style={{color:kpiColor}}>
                         {noData ? '—' : `${finalKPI}%`}
                       </div>
-                      <div className="text-[8px] font-bold uppercase tracking-wide" style={{color:kpiColor}}>{kpiLabel}</div>
+                      <div className="text-sm font-bold uppercase tracking-wide" style={{color:kpiColor}}>{kpiLabel}</div>
                       {/* Sparkline tickets trend */}
                       {spark.some(v=>v>0) && (
                         <svg width={sparkW} height={sparkH} viewBox={`0 0 ${sparkW} ${sparkH}`} style={{overflow:'visible'}}>
@@ -1757,7 +1758,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       {alerts.length>0 && (
                         <div className="flex gap-0.5 flex-wrap justify-center">
                           {alerts.map((a,i)=>(
-                            <span key={i} className="text-[7px] font-bold px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-100 leading-none">{a}</span>
+                            <span key={i} className="text-[11px] font-bold px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-100 leading-none">{a}</span>
                           ))}
                         </div>
                       )}
@@ -1774,11 +1775,11 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     <div className="bg-white/95 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                       {/* Header */}
                       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-100" style={{background:`${color}08`}}>
-                        <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[9px] font-black flex-shrink-0" style={{background:color}}>{abbr}</div>
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">{label}</span>
-                        <span className="text-[9px] text-slate-400">{members.length} anggota</span>
+                        <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-sm font-black flex-shrink-0" style={{background:color}}>{abbr}</div>
+                        <span className="text-sm font-black text-slate-600 uppercase tracking-wider">{label}</span>
+                        <span className="text-sm text-slate-400">{members.length} anggota</span>
                         {avg!==null && (
-                          <span className="ml-auto text-[10px] font-black" style={{color:avgC}}>avg {avg}%</span>
+                          <span className="ml-auto text-sm font-black" style={{color:avgC}}>avg {avg}%</span>
                         )}
                       </div>
                       {/* Horizontal scroll member chips */}
@@ -1794,10 +1795,26 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 if (scope.kind === 'team') {
                   const myMember = kpiTeam.members.find(m => m.id === currentUser.id);
                   if (!myMember) return <div className="text-center py-8 text-slate-400 text-sm">Data KPI kamu belum tersedia.</div>;
+                  const MONTHS_FULL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                  const startM = kpiTeam.filterStartMonth;
+                  const duration = kpiTeam.filterPeriod === '6m' ? 6 : 12;
+                  const endM = Math.min(startM + duration - 1, 12);
+                  const periodLabel = `${MONTHS_FULL[startM-1]} – ${MONTHS_FULL[endM-1]} ${kpiTeam.filterYear}`;
                   return (
                     <div className="bg-white/95 rounded-2xl border border-slate-200 shadow-sm p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">📊 KPI Saya — {currentUser.full_name}</span>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-sm font-black text-slate-600 uppercase tracking-wider">📊 Dashboard KPI — {currentUser.full_name}</span>
+                      </div>
+                      {/* Info periode — konteks utama */}
+                      <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
+                        <span className="text-blue-500 text-sm">📅</span>
+                        <div>
+                          <p className="text-sm text-blue-400 font-semibold uppercase tracking-wider">Periode Penilaian</p>
+                          <p className="text-sm font-black text-blue-700">{periodLabel}</p>
+                        </div>
+                        <span className="ml-auto text-sm font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 border border-blue-200">
+                          {kpiTeam.filterPeriod === '6m' ? '6 Bulan' : '1 Tahun'}
+                        </span>
                       </div>
                       <div className="flex justify-center">
                         <MemberChip member={myMember}/>
@@ -1844,21 +1861,21 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
                     style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
                     onClick={e => { if (e.target === e.currentTarget) { setSelectedKPIMember(null); setKpiTeam(prev=>({...prev,editingMember:null,editValues:{}})); } }}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto"
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                       style={{ scrollbarWidth:'thin' }}>
                       {/* Modal header */}
-                      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 sticky top-0 bg-white z-10 rounded-t-2xl">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-base text-white flex-shrink-0"
+                      <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10 rounded-t-3xl">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg text-white flex-shrink-0"
                           style={{ background: `linear-gradient(135deg, ${kpiColor}, ${kpiColor}99)` }}>
                           {member.name.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-bold text-slate-800 text-sm truncate">{member.name}</div>
-                          <div className="text-[10px] text-slate-400">{member.jabatan} · {member.team_type}</div>
+                          <div className="font-bold text-slate-800 text-base truncate">{member.name}</div>
+                          <div className="text-sm text-slate-400">{member.jabatan} · {member.team_type}</div>
                         </div>
-                        <div className="flex flex-col items-end mr-1 flex-shrink-0">
-                          <div className="text-2xl font-black" style={{ color: kpiColor }}>{noData ? '—' : `${finalKPI}%`}</div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">KPI Score</div>
+                        <div className="flex flex-col items-end mr-2 flex-shrink-0">
+                          <div className="text-3xl font-black" style={{ color: kpiColor }}>{noData ? '—' : `${finalKPI}%`}</div>
+                          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">KPI Score</div>
                         </div>
                         {(scope.kind==='admin' || scope.kind==='pts_sup') && (
                           <button
@@ -1882,7 +1899,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                 setKpiTeam(prev=>({...prev, editingMember:member.id, editValues:{...member.manual}}));
                               }
                             }}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-all"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all"
                             style={isEditing
                               ? {background:'#10b98120',color:'#059669',borderColor:'#10b98140'}
                               : {background:'#f1f5f9',color:'#64748b',borderColor:'#e2e8f0'}}>
@@ -1890,42 +1907,42 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                           </button>
                         )}
                         <button onClick={() => { setSelectedKPIMember(null); setKpiTeam(prev=>({...prev,editingMember:null,editValues:{}})); }}
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0">
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                       </div>
 
-                      <div className="p-4 space-y-3">
+                      <div className="p-5 space-y-4">
 
                         {/* ── KPI Score Breakdown ── */}
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           {[
                             {label:'Ticketing', raw:Math.round(tickScore*100), pct:Math.round(tickScore*_s.ticketOverdueWeight*100), weight:Math.round(_s.ticketOverdueWeight*100)+'%', color:'#ef4444', icon:'🎫', bg:'#fef2f2', border:'#ef444440'},
                             {label:'BAST & Demo', raw:Math.round(bastScore*100), pct:Math.round(bastScore*_s.bastWeight*100), weight:Math.round(_s.bastWeight*100)+'%', color:'#f59e0b', icon:'⭐', bg:'#fffbeb', border:'#f59e0b40'},
                             {label:'Learning Center', raw:Math.round(lcScore*100), pct:Math.round(lcScore*_s.lcWeight*100), weight:Math.round(_s.lcWeight*100)+'%', color:'#6366f1', icon:'🎓', bg:'#f5f3ff', border:'#6366f140'},
                             {label:'R&D Tech Note', raw:Math.round(rndScore*100), pct:Math.round(rndScore*_s.rndWeight*100), weight:Math.round(_s.rndWeight*100)+'%', color:'#ec4899', icon:'📝', bg:'#fdf4ff', border:'#ec489940'},
                           ].map(k=>(
-                            <div key={k.label} className="rounded-xl border p-2 text-center" style={{background:k.bg, borderColor:k.border}}>
-                              <div className="text-xs mb-0.5">{k.icon}</div>
-                              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-tight mb-1">{k.label}</div>
-                              <div className="text-lg font-black leading-none" style={{color:k.color}}>{k.pct}%</div>
-                              <div className="text-[9px] text-slate-400 mt-0.5">bobot {k.weight}</div>
+                            <div key={k.label} className="rounded-xl border p-2.5 text-center" style={{background:k.bg, borderColor:k.border}}>
+                              <div className="text-sm mb-0.5">{k.icon}</div>
+                              <div className="text-sm font-bold text-slate-400 uppercase tracking-wide leading-tight mb-1">{k.label}</div>
+                              <div className="text-xl font-black" style={{color:k.color}}>{k.pct}%</div>
+                              <div className="text-sm text-slate-400">bobot {k.weight}</div>
                             </div>
                           ))}
                         </div>
 
                         {/* ── Platform auto section ── */}
                         <div>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">✅ Data Platform (Otomatis)</div>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">✅ Data Platform (Otomatis)</div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
                             {/* Ticketing — 20% */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#ef444440', background:'#fef2f2'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider">🎫 Ticketing</div>
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:tickScore>=1?'#d1fae5':'#fee2e2',color:tickScore>=1?'#065f46':'#991b1b'}}>{Math.round(tickScore*_s.ticketOverdueWeight*100)}/{Math.round(_s.ticketOverdueWeight*100)}% bobot</span>
+                                <div className="text-sm font-bold text-red-600 uppercase tracking-wider">🎫 Ticketing</div>
+                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:tickScore>=1?'#d1fae5':'#fee2e2',color:tickScore>=1?'#065f46':'#991b1b'}}>{Math.round(tickScore*_s.ticketOverdueWeight*100)}/{Math.round(_s.ticketOverdueWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-[11px] text-slate-600">
+                              <div className="space-y-1.5 text-sm text-slate-600">
                                 <div className="flex justify-between"><span>Handled</span><b className="text-slate-800">{member.ticketsHandled}</b></div>
                                 <div className="flex justify-between"><span>Solved</span><b className="text-emerald-600">{member.ticketsSolved}</b></div>
                                 <div className="flex justify-between"><span>Overdue</span>
@@ -1937,19 +1954,19 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                   </b>
                                 </div>
                                 {member.ticketsOverdue === 0
-                                  ? <div className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Tidak ada overdue</div>
-                                  : <div className="text-[10px] text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {member.ticketsOverdue} ticket overdue</div>}
+                                  ? <div className="text-sm text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Tidak ada overdue</div>
+                                  : <div className="text-sm text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {member.ticketsOverdue} ticket overdue</div>}
                               </div>
                             </div>
 
                             {/* BAST & Demo — 30% (Form Review) */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#f59e0b40', background:'#fffbeb'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">⭐ BAST &amp; Demo</div>
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:bastScore>=1?'#d1fae5':'#fee2e2',color:bastScore>=1?'#065f46':'#991b1b'}}>{Math.round(bastScore*_s.bastWeight*100)}/{Math.round(_s.bastWeight*100)}% bobot</span>
+                                <div className="text-sm font-bold text-amber-600 uppercase tracking-wider">⭐ BAST &amp; Demo</div>
+                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:bastScore>=1?'#d1fae5':'#fee2e2',color:bastScore>=1?'#065f46':'#991b1b'}}>{Math.round(bastScore*_s.bastWeight*100)}/{Math.round(_s.bastWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-[11px] text-slate-600">
-                                <div className="text-[10px] text-slate-400 mb-1">Sumber: Form Review BAST & Demo (bintang &lt;3)</div>
+                              <div className="space-y-1.5 text-sm text-slate-600">
+                                <div className="text-sm text-slate-400 mb-1">Sumber: Form Review BAST & Demo (bintang &lt;3)</div>
                                 <div className="flex justify-between"><span>Total Review</span><b className="text-slate-800">{member.formReviewTotal}</b></div>
                                 <div className="flex justify-between"><span>Komplain (★1-2)</span>
                                   <b className={member.formReviewLowRating > 0 ? 'text-red-600' : 'text-emerald-600'}>
@@ -1957,21 +1974,21 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                   </b>
                                 </div>
                                 {member.formReviewTotal === 0
-                                  ? <div className="text-[10px] text-slate-400 font-semibold bg-slate-50 rounded-lg px-2 py-1">⏳ Sales belum submit review — belum dihitung</div>
+                                  ? <div className="text-sm text-slate-400 font-semibold bg-slate-50 rounded-lg px-2 py-1">⏳ Sales belum submit review — belum dihitung</div>
                                   : member.formReviewLowRating === 0
-                                    ? <div className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Tidak ada komplain dari {member.formReviewTotal} review</div>
-                                    : <div className="text-[10px] text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {member.formReviewLowRating}x komplain dari {member.formReviewTotal} review</div>}
+                                    ? <div className="text-sm text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Tidak ada komplain dari {member.formReviewTotal} review</div>
+                                    : <div className="text-sm text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {member.formReviewLowRating}x komplain dari {member.formReviewTotal} review</div>}
                               </div>
                             </div>
 
                             {/* Tech Knowledge — 40% (LC) */}
                             <div className="rounded-xl border p-3" style={{borderColor:'#6366f140', background:'#f5f3ff'}}>
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-[10px] font-bold text-violet-600 uppercase tracking-wider">🎓 Learning Center</div>
-                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:lcScore>=1?'#d1fae5':'#fee2e2',color:lcScore>=1?'#065f46':'#991b1b'}}>{Math.round(lcScore*_s.lcWeight*100)}/{Math.round(_s.lcWeight*100)}% bobot</span>
+                                <div className="text-sm font-bold text-violet-600 uppercase tracking-wider">🎓 Learning Center</div>
+                                <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:lcScore>=1?'#d1fae5':'#fee2e2',color:lcScore>=1?'#065f46':'#991b1b'}}>{Math.round(lcScore*_s.lcWeight*100)}/{Math.round(_s.lcWeight*100)}% bobot</span>
                               </div>
-                              <div className="space-y-1.5 text-[11px] text-slate-600">
-                                <div className="text-[10px] text-slate-400 mb-1">Sumber: Learning Center (nilai penuh jika tidak ada &lt;{_s.lcMinScore})</div>
+                              <div className="space-y-1.5 text-sm text-slate-600">
+                                <div className="text-sm text-slate-400 mb-1">Sumber: Learning Center (nilai penuh jika tidak ada &lt;{_s.lcMinScore})</div>
                                 <div className="flex justify-between"><span>Total Attempt</span><b className="text-slate-800">{member.lcAttempts}</b></div>
                                 <div className="flex justify-between"><span>Avg Score</span><b className={member.lcAvgScore < _s.lcMinScore ? 'text-red-600' : 'text-emerald-600'}>{member.lcAvgScore || '—'}</b></div>
                                 <div className="flex justify-between"><span>Lulus</span><b className="text-emerald-600">{member.lcPassed}</b></div>
@@ -1979,16 +1996,16 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                   <b className={lcFailedDyn > 0 ? 'text-red-600' : 'text-emerald-600'}>{lcFailedDyn}x</b>
                                 </div>
                                 {lcFailedDyn > 0
-                                  ? <div className="text-[10px] text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {lcFailedDyn}x nilai di bawah {_s.lcMinScore}</div>
+                                  ? <div className="text-sm text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1">⚠ {lcFailedDyn}x nilai di bawah {_s.lcMinScore}</div>
                                   : member.lcAttempts > 0
-                                    ? <div className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Semua nilai ≥{_s.lcMinScore}</div>
+                                    ? <div className="text-sm text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1">✓ Semua nilai ≥{_s.lcMinScore}</div>
                                     : null}
                               </div>
                             </div>
 
                           </div>
                           {/* Reminder & Piket info */}
-                          <div className="mt-2 bg-slate-50 rounded-xl border border-slate-100 p-3 text-[11px] text-slate-600 flex flex-wrap gap-x-5 gap-y-1">
+                          <div className="mt-2 bg-slate-50 rounded-xl border border-slate-100 p-3 text-sm text-slate-600 flex flex-wrap gap-x-5 gap-y-1">
                             <span>📅 Reminder: <b className="text-slate-800">{member.remindersDone}</b>/{member.remindersAssigned} done{member.remindersOverdue>0?<span className="text-red-500"> · {member.remindersOverdue} overdue</span>:null}</span>
                             <span>🏪 Piket: <b className="text-slate-800">{member.piketFilled}</b> hari bertugas</span>
                           </div>
@@ -1996,13 +2013,13 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
                         {/* ── R&D Tech Note — Otomatis dari platform Tech Note ── */}
                         <div>
-                          <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&amp;D Tech Note (Otomatis dari Platform)</div>
+                          <div className="text-sm font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&amp;D Tech Note (Otomatis dari Platform)</div>
                           <div className="rounded-xl border p-3" style={{borderColor:'#ec489940', background:'#fdf4ff'}}>
                             <div className="flex items-center justify-between mb-2">
-                              <div className="text-[10px] font-bold text-pink-600 uppercase tracking-wider">📝 R&amp;D Tech Note</div>
-                              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{background:rndScore>=1?'#d1fae5':'#fee2e2',color:rndScore>=1?'#065f46':'#991b1b'}}>{Math.round(rndScore*_s.rndWeight*100)}/{Math.round(_s.rndWeight*100)}% bobot</span>
+                              <div className="text-sm font-bold text-pink-600 uppercase tracking-wider">📝 R&amp;D Tech Note</div>
+                              <span className="text-sm font-black px-1.5 py-0.5 rounded-full" style={{background:rndScore>=1?'#d1fae5':'#fee2e2',color:rndScore>=1?'#065f46':'#991b1b'}}>{Math.round(rndScore*_s.rndWeight*100)}/{Math.round(_s.rndWeight*100)}% bobot</span>
                             </div>
-                            <div className="text-[10px] text-slate-500 mb-3">
+                            <div className="text-sm text-slate-500 mb-3">
                               Target: <b className="text-slate-700">{_s.rndTarget} Tech Note approved</b> per tahun · Data otomatis dari platform Tech Note
                             </div>
                             <div className="flex items-center gap-3 mb-2">
@@ -2013,20 +2030,20 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                               </div>
                             </div>
                             {member.techNotesApproved === 0 ? (
-                              <div className="text-[10px] text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
+                              <div className="text-sm text-red-500 font-semibold bg-red-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
                                 ⚠️ Belum ada Tech Note yang diapprove tahun ini
                               </div>
                             ) : member.techNotesApproved >= _s.rndTarget ? (
-                              <div className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
+                              <div className="text-sm text-emerald-600 font-semibold bg-emerald-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
                                 ✅ KKM Tech Note terpenuhi ({member.techNotesApproved}/{_s.rndTarget} approved)
                               </div>
                             ) : (
-                              <div className="text-[10px] text-amber-600 font-semibold bg-amber-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
+                              <div className="text-sm text-amber-600 font-semibold bg-amber-50 rounded-lg px-2 py-1.5 flex items-center gap-1.5">
                                 ⏳ Kurang {_s.rndTarget - member.techNotesApproved} Tech Note lagi untuk mencapai KKM
                               </div>
                             )}
                             <a href="/tech-note" target="_blank" rel="noopener noreferrer"
-                              className="mt-2 flex items-center gap-1.5 text-[10px] font-semibold text-pink-600 hover:text-pink-800 transition-colors">
+                              className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-pink-600 hover:text-pink-800 transition-colors">
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                               Buka Platform Tech Note →
                             </a>
@@ -2048,52 +2065,50 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* Handler */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">🎫 Ticket Open per Handler</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🎫 Ticket Open per Handler</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byHandler.length
                       ? <HBarChart data={kpi.tickets.byHandler.map(h=>({label:h.name.split(' ')[0],value:h.count}))} color="#ef4444"/>
-                      : <p className="text-xs text-center py-6 text-slate-400">Tidak ada data</p>}
+                      : <p className="text-sm text-center py-6 text-slate-400">Tidak ada data</p>}
                 </div>
                 {/* Divisi */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🏢 Ticket per Divisi</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🏢 Ticket per Divisi</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byDivision.length
                       ? <HBarChart data={kpi.tickets.byDivision.map(d=>({label:d.div,value:d.count}))} color="#6366f1"/>
-                      : <p className="text-xs text-center py-6 text-slate-400">Tidak ada data</p>}
+                      : <p className="text-sm text-center py-6 text-slate-400">Tidak ada data</p>}
                 </div>
                 {/* Product */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">📦 Ticket per Produk</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">📦 Ticket per Produk</h3>
                   {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:
                     kpi?.tickets.byProduct?.length
                       ? <HBarChart data={kpi.tickets.byProduct.map(p=>({label:p.product,value:p.count}))} color="#0891b2"/>
-                      : <p className="text-xs text-center py-6 text-slate-400">Tidak ada data produk</p>}
+                      : <p className="text-sm text-center py-6 text-slate-400">Tidak ada data produk</p>}
                 </div>
               </div>
 
               {/* ── ROW B: Reminder Kategori + Reminder per Produk ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🗂️ Reminder per Kategori</h3>
-                  {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
-                    <div className="flex items-center gap-6">
-                      <div className="flex-shrink-0">
-                        <DonutChart size={96} strokeWidth={11}
-                          segments={(kpi?.reminders.byCategory??[]).map(c=>({value:c.count,color:c.color}))}
-                          label={`${kpi?.reminders.total??0}`}/>
-                      </div>
-                      <div className="space-y-2 flex-1 min-w-0">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🗂️ Reminder per Kategori</h3>
+                  {loading?<div className="h-20 rounded animate-pulse bg-slate-100"/>:(
+                    <div className="flex items-center gap-5">
+                      <DonutChart size={64} strokeWidth={9}
+                        segments={(kpi?.reminders.byCategory??[]).map(c=>({value:c.count,color:c.color}))}
+                        label={`${kpi?.reminders.total??0}`}/>
+                      <div className="space-y-1.5 flex-1">
                         {(kpi?.reminders.byCategory??[]).map(c=>(
                           <div key={c.cat} className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background:c.color }}/>
-                            <span className="text-[11px] flex-1 truncate text-slate-600 font-medium">{c.cat}</span>
-                            <span className="text-[11px] font-black text-slate-700 w-5 text-right">{c.count}</span>
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background:c.color }}/>
+                            <span className="text-sm flex-1 truncate text-slate-500">{c.cat}</span>
+                            <span className="text-sm font-bold text-slate-700">{c.count}</span>
                           </div>
                         ))}
-                        <div className="pt-1 border-t border-slate-100 flex items-center justify-between">
-                          <span className="text-[10px] text-slate-400">Done rate</span>
-                          <span className="text-sm font-black text-emerald-600">
+                        <div className="flex justify-end mt-1">
+                          <span className="text-sm text-slate-400">Done rate </span>
+                          <span className="text-sm font-black text-emerald-600 ml-1">
                             {kpi && kpi.reminders.total>0?Math.round((kpi.reminders.done/kpi.reminders.total)*100):0}%
                           </span>
                         </div>
@@ -2103,27 +2118,27 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 </div>
                 {/* Reminder per Produk */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">🏷️ Reminder per Produk</h3>
-                  {loading?<div className="h-28 rounded animate-pulse bg-slate-100"/>:(
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">🏷️ Reminder per Produk</h3>
+                  {loading?<div className="h-20 rounded animate-pulse bg-slate-100"/>:(
                     (kpi?.reminders.byProduct??[]).length === 0
-                      ? <p className="text-xs text-center py-8 text-slate-400">Tidak ada data produk</p>
-                      : <div className="space-y-3 max-h-56 overflow-y-auto pr-1" style={{scrollbarWidth:'thin'}}>
+                      ? <p className="text-sm text-center py-6 text-slate-400">Tidak ada data produk</p>
+                      : <div className="space-y-3 max-h-52 overflow-y-auto pr-1" style={{scrollbarWidth:'thin'}}>
                           {(kpi?.reminders.byProduct??[]).map(p=>{
                             const total = p.byCategory.reduce((s,c)=>s+c.count,0);
                             return (
-                              <div key={p.product} className="flex items-start gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-[12px] font-bold text-slate-700 truncate leading-snug">{p.product}</div>
-                                  <div className="flex flex-wrap gap-1.5 mt-1">
-                                    {p.byCategory.map(c=>(
-                                      <span key={c.cat} className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                                        style={{background:(CATEGORY_COLORS[c.cat]||'#64748b')+'18',color:CATEGORY_COLORS[c.cat]||'#64748b',border:`1px solid ${(CATEGORY_COLORS[c.cat]||'#e2e8f0')}40`}}>
-                                        {c.cat} <b>{c.count}</b>
-                                      </span>
-                                    ))}
-                                  </div>
+                              <div key={p.product}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-sm font-bold text-slate-700 truncate">{p.product}</span>
+                                  <span className="text-sm font-black text-slate-500 ml-2 flex-shrink-0">{total}</span>
                                 </div>
-                                <span className="text-sm font-black text-slate-500 flex-shrink-0 pt-0.5">{total}</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {p.byCategory.map(c=>(
+                                    <span key={c.cat} className="text-sm font-semibold px-1.5 py-0.5 rounded-full"
+                                      style={{background:CATEGORY_COLORS[c.cat]+'18'||'#f1f5f9',color:CATEGORY_COLORS[c.cat]||'#64748b',border:`1px solid ${CATEGORY_COLORS[c.cat]||'#e2e8f0'}40`}}>
+                                      {c.cat} {c.count}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             );
                           })}
@@ -2134,7 +2149,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
               {/* Performa Resolusi */}
               <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-4">⚡ Ringkasan Performa</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">⚡ Ringkasan Performa</h3>
                 {loading?<div className="h-32 rounded animate-pulse bg-slate-100"/>:(
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {[
@@ -2148,7 +2163,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div key={m.label} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
                         <span className="text-xl">{m.icon}</span>
                         <div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{m.label}</div>
+                          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{m.label}</div>
                           <div className="text-sm font-black" style={{ color:m.color }}>{m.value}</div>
                         </div>
                       </div>
@@ -2161,150 +2176,477 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
           {/* ══════════ TAB RIWAYAT KPI ══════════ */}
           {tab==='history' && (scope.kind==='admin' || scope.kind==='pts_sup') && (() => {
-            const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
-            const kpiColor = (score: number, noData: boolean) =>
-              noData ? '#94a3b8' : score>=85?'#10b981':score>=70?'#3b82f6':score>=50?'#f59e0b':'#ef4444';
+            const MN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+            const kpiColor = (s:number) => s>=85?'#10b981':s>=70?'#3b82f6':s>=50?'#f59e0b':'#ef4444';
+            const kpiLabel = (s:number) => s>=85?'Excellent':s>=70?'Good':s>=50?'Fair':'Needs Work';
+
+            const deleteSnapshot = async (id:string, label:string) => {
+              if (!confirm(`Hapus periode "${label}"?\nTindakan ini permanen dan tidak bisa dibatalkan.`)) return;
+              await supabase.from('kpi_period_snapshots').delete().eq('id', id);
+              await fetchKPISnapshots();
+              if (expandedSnapshot === id) setExpandedSnapshot(null);
+            };
+
+            const exportSnapshotExcel = async (snap: KPIPeriodSnapshot) => {
+              const XLSX_MOD: any = await new Promise((resolve, reject) => {
+                if ((window as any).XLSX) { resolve((window as any).XLSX); return; }
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                s.onload = () => resolve((window as any).XLSX);
+                s.onerror = reject;
+                document.head.appendChild(s);
+              });
+              const avg = snap.members_json.length
+                ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length) : 0;
+              const wb = XLSX_MOD.utils.book_new();
+              const aoa: (string|number|null)[][] = [
+                ['REKAP KPI — ' + snap.period_label.toUpperCase(),null,null,null,null,null,null,null,null,null],
+                [`Periode: ${snap.period_label}  |  Tim: ${snap.team_type}  |  Disimpan: ${new Date(snap.created_at).toLocaleDateString('id-ID')} oleh ${snap.created_by}`,null,null,null,null,null,null,null,null,null],
+                [],
+                ['No','Nama','Jabatan','Tim','Ticket (20%)','BAST (40%)','LC (30%)','RnD (10%)','KPI Final (%)','Predikat'],
+              ];
+              snap.members_json.slice().sort((a,b)=>b.finalKPI-a.finalKPI).forEach((m,i)=>{
+                const nd = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+                aoa.push([i+1,m.name,m.jabatan,(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP'),
+                  m.tickScore/100,m.bastScore/100,m.lcScore/100,m.rndScore/100,nd?0:m.finalKPI/100,nd?'Belum Ada Data':kpiLabel(m.finalKPI)]);
+              });
+              aoa.push([]);
+              aoa.push([null,null,null,null,null,null,null,'Rata-rata Tim',avg/100,kpiLabel(avg)]);
+              const ws = XLSX_MOD.utils.aoa_to_sheet(aoa);
+              const fmt = '0%';
+              snap.members_json.forEach((_,i)=>{
+                ['E','F','G','H','I'].forEach(col=>{
+                  const cell = ws[`${col}${i+5}`];
+                  if(cell) cell.z = fmt;
+                });
+              });
+              ws['!cols'] = [{wch:4},{wch:28},{wch:16},{wch:10},{wch:13},{wch:13},{wch:10},{wch:10},{wch:13},{wch:14}];
+              XLSX_MOD.utils.book_append_sheet(wb, ws, 'Rekap KPI');
+              const out = XLSX_MOD.write(wb, {bookType:'xlsx',type:'array'});
+              const url = URL.createObjectURL(new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+              Object.assign(document.createElement('a'),{href:url,download:`KPI_${snap.period_label.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`}).click();
+              URL.revokeObjectURL(url);
+            };
+
+            const selectedSnap = kpiSnapshots.find(s=>s.id===expandedSnapshot) ?? null;
+
             return (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="inline-flex items-center gap-1.5 bg-white/90 text-slate-700 px-3 py-1.5 rounded-full shadow-sm border border-slate-200 text-[10px] font-bold uppercase tracking-widest">
-                    <span>📋</span>Riwayat Snapshot KPI
+              <div className="space-y-0">
+
+                {/* ── Page header ── */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="font-bold text-slate-800 text-sm">Riwayat Periode KPI</div>
+                    <div className="text-sm text-slate-400 mt-0.5">{kpiSnapshots.length} periode tersimpan</div>
                   </div>
-                  <span className="text-[11px] text-slate-400 ml-1">
-                    {kpiSnapshots.length} periode tersimpan · data permanen, tidak berubah
-                  </span>
                   <button onClick={fetchKPISnapshots}
-                    className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 transition-all">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     Refresh
                   </button>
                 </div>
 
                 {kpiSnapshots.length === 0 ? (
-                  <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-                    <span className="text-4xl opacity-20">📋</span>
-                    <p className="text-sm">Belum ada snapshot KPI tersimpan.</p>
-                    <p className="text-xs text-slate-300">Klik <b className="text-rose-400">Mulai KPI</b> di tab KPI Team untuk merekam periode pertama.</p>
+                  <div className="flex flex-col items-center gap-3 py-20 text-slate-400">
+                    <span className="text-5xl opacity-20">📋</span>
+                    <p className="text-sm font-semibold text-slate-500">Belum ada periode yang disimpan</p>
+                    <p className="text-sm text-center leading-relaxed">
+                      Buka tab <b className="text-blue-500">KPI Team</b>, pilih periode &amp; filter,<br/>
+                      lalu klik <b className="text-rose-500">Mulai KPI</b> untuk menyimpan periode pertama.
+                    </p>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {kpiSnapshots.map(snap => {
-                      const isExpanded = expandedSnapshot === snap.id;
-                      const avgScore = snap.members_json.length
-                        ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length)
-                        : 0;
-                      const avgColor = kpiColor(avgScore, snap.members_json.length===0);
-                      const createdFmt = new Date(snap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
-                      return (
-                        <div key={snap.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                          {/* Snapshot header — clickable */}
-                          <button
-                            onClick={()=>setExpandedSnapshot(isExpanded ? null : snap.id)}
-                            className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50/80 transition-all text-left">
-                            {/* Period badge */}
-                            <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl flex-shrink-0"
-                              style={{background:`${avgColor}12`, border:`1.5px solid ${avgColor}30`}}>
-                              <span className="text-[9px] font-bold uppercase tracking-wide" style={{color:avgColor}}>
-                                {snap.period==='6m'?'6 Bln':'1 Thn'}
-                              </span>
-                              <span className="text-lg font-black leading-none" style={{color:avgColor}}>{avgScore}%</span>
-                              <span className="text-[8px] text-slate-400">rata2</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-slate-800 text-sm">{snap.period_label}</div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">
-                                Periode: <b className="text-slate-600">
-                                  {MONTH_NAMES[(snap.start_month ?? 1)-1]} – {MONTH_NAMES[(snap.end_month ?? 12)-1]} {snap.year}
-                                </b>
-                                &nbsp;·&nbsp;
-                                {snap.members_json.length} anggota
-                                &nbsp;·&nbsp;
-                                Disimpan {createdFmt} oleh <b className="text-slate-600">{snap.created_by}</b>
-                              </div>
-                              {/* Member pill preview */}
-                              <div className="flex gap-1 mt-1.5 flex-wrap">
-                                {snap.members_json.slice(0,6).map(m=>{
-                                  const c = kpiColor(m.finalKPI, false);
-                                  return (
-                                    <span key={m.id} className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                                      style={{background:`${c}15`,color:c,border:`1px solid ${c}30`}}>
-                                      {m.name.split(' ')[0]} {m.finalKPI}%
-                                    </span>
-                                  );
-                                })}
-                                {snap.members_json.length > 6 && (
-                                  <span className="text-[9px] text-slate-400 px-1.5 py-0.5">+{snap.members_json.length-6} lagi</span>
-                                )}
-                              </div>
-                            </div>
-                            <svg className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${isExpanded?'rotate-180':''}`}
-                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
-                            </svg>
+                ) : selectedSnap ? (
+                  /* ══ DETAIL VIEW ══ */
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    {/* Detail header */}
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+                      <button
+                        onClick={()=>setExpandedSnapshot(null)}
+                        className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+                        Kembali
+                      </button>
+                      <div className="w-px h-4 bg-slate-200"/>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-slate-800 text-sm">{selectedSnap.period_label}</span>
+                        <span className="ml-2 text-sm text-slate-400">
+                          {MN[(selectedSnap.start_month??1)-1]}–{MN[(selectedSnap.end_month??12)-1]} {selectedSnap.year}
+                          &nbsp;·&nbsp;{selectedSnap.members_json.length} anggota
+                          &nbsp;·&nbsp;{new Date(selectedSnap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
+                          &nbsp;oleh&nbsp;<b className="text-slate-600">{selectedSnap.created_by}</b>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={()=>exportSnapshotExcel(selectedSnap)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                          Export Excel
+                        </button>
+                        {scope.kind==='admin' && (
+                          <button onClick={()=>deleteSnapshot(selectedSnap.id, selectedSnap.period_label)}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white transition-all">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Hapus
                           </button>
+                        )}
+                      </div>
+                    </div>
 
-                          {/* Expanded detail */}
-                          {isExpanded && (
-                            <div className="border-t border-slate-100 px-4 py-3">
-                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                                Detail Skor — {snap.period_label}
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {snap.members_json.map(m => {
-                                  const c = kpiColor(m.finalKPI, false);
-                                  return (
-                                    <div key={m.id} className="rounded-xl border p-3 flex items-center gap-3"
-                                      style={{background:`${c}06`,borderColor:`${c}25`}}>
-                                      <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-white flex-shrink-0"
-                                        style={{background:`linear-gradient(135deg,${c},${c}88)`}}>
-                                        {m.name.charAt(0)}
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-slate-800 text-[12px] truncate">{m.name}</div>
-                                        <div className="text-[10px] text-slate-400">{m.jabatan}</div>
-                                        {/* Component bars */}
-                                        <div className="mt-1.5 space-y-0.5">
-                                          {[
-                                            {label:'🎫 Ticket', val:m.tickScore, color:'#ef4444'},
-                                            {label:'⭐ BAST', val:m.bastScore, color:'#f59e0b'},
-                                            {label:'🎓 LC', val:m.lcScore, color:'#6366f1'},
-                                            {label:'📝 RnD', val:m.rndScore, color:'#ec4899'},
-                                          ].map(comp=>(
-                                            <div key={comp.label} className="flex items-center gap-1.5">
-                                              <span className="text-[8px] text-slate-400 w-12 flex-shrink-0">{comp.label}</span>
-                                              <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                                                <div className="h-full rounded-full" style={{width:`${comp.val}%`,background:comp.color}}/>
-                                              </div>
-                                              <span className="text-[9px] font-bold w-7 text-right" style={{color:comp.color}}>{comp.val}%</span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                      <div className="flex flex-col items-end flex-shrink-0">
-                                        <span className="text-xl font-black" style={{color:c}}>{m.finalKPI}%</span>
-                                        <span className="text-[8px] font-bold uppercase" style={{color:c}}>
-                                          {m.finalKPI>=85?'Excellent':m.finalKPI>=70?'Good':m.finalKPI>=50?'Fair':'Needs Work'}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                    {/* Summary strip */}
+                    {(() => {
+                      const avg = selectedSnap.members_json.length
+                        ? Math.round(selectedSnap.members_json.reduce((s,m)=>s+m.finalKPI,0)/selectedSnap.members_json.length) : 0;
+                      const dist = [
+                        {label:'Excellent', count:selectedSnap.members_json.filter(m=>m.finalKPI>=85).length, c:'#10b981'},
+                        {label:'Good',      count:selectedSnap.members_json.filter(m=>m.finalKPI>=70&&m.finalKPI<85).length, c:'#3b82f6'},
+                        {label:'Fair',      count:selectedSnap.members_json.filter(m=>m.finalKPI>=50&&m.finalKPI<70).length, c:'#f59e0b'},
+                        {label:'Needs Work',count:selectedSnap.members_json.filter(m=>m.finalKPI<50).length, c:'#ef4444'},
+                      ];
+                      return (
+                        <div className="grid grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
+                          <div className="px-4 py-3">
+                            <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-0.5">Avg Tim</div>
+                            <div className="text-xl font-black" style={{color:kpiColor(avg)}}>{avg}%</div>
+                            <div className="text-sm font-bold mt-0.5" style={{color:kpiColor(avg)}}>{kpiLabel(avg)}</div>
+                          </div>
+                          {dist.map(d=>(
+                            <div key={d.label} className="px-4 py-3">
+                              <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-0.5">{d.label}</div>
+                              <div className="text-xl font-black" style={{color:d.c}}>{d.count}</div>
+                              <div className="text-sm text-slate-400">orang</div>
                             </div>
-                          )}
+                          ))}
                         </div>
                       );
-                    })}
+                    })()}
+
+                    {/* Member table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-slate-100" style={{background:'#f8fafc'}}>
+                            <th className="px-4 py-2.5 text-left text-sm font-bold text-slate-400 uppercase tracking-widest w-8">#</th>
+                            <th className="px-3 py-2.5 text-left text-sm font-bold text-slate-400 uppercase tracking-widest">Nama</th>
+                            <th className="px-3 py-2.5 text-left text-sm font-bold text-slate-400 uppercase tracking-widest">Tim</th>
+                            <th className="px-3 py-2.5 text-center text-sm font-bold uppercase tracking-widest" style={{color:'#ef4444'}}>Ticket<br/><span className="normal-case font-normal text-slate-300">20%</span></th>
+                            <th className="px-3 py-2.5 text-center text-sm font-bold uppercase tracking-widest" style={{color:'#f59e0b'}}>BAST<br/><span className="normal-case font-normal text-slate-300">40%</span></th>
+                            <th className="px-3 py-2.5 text-center text-sm font-bold uppercase tracking-widest" style={{color:'#6366f1'}}>LC<br/><span className="normal-case font-normal text-slate-300">30%</span></th>
+                            <th className="px-3 py-2.5 text-center text-sm font-bold uppercase tracking-widest" style={{color:'#ec4899'}}>RnD<br/><span className="normal-case font-normal text-slate-300">10%</span></th>
+                            <th className="px-3 py-2.5 text-center text-sm font-bold text-slate-500 uppercase tracking-widest">KPI Final</th>
+                            <th className="px-4 py-2.5 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">Predikat</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedSnap.members_json.slice().sort((a,b)=>b.finalKPI-a.finalKPI).map((m,idx)=>{
+                            const noData = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+                            const c = noData?'#94a3b8':kpiColor(m.finalKPI);
+                            const lbl = noData?'—':kpiLabel(m.finalKPI);
+                            return (
+                              <tr key={m.id}
+                                className="border-b border-slate-50 hover:bg-blue-50/40 cursor-pointer transition-colors group"
+                                onClick={()=>setSelectedSnapMember(m.id)}>
+                                <td className="px-4 py-3 text-sm text-slate-300 font-semibold">{idx+1}</td>
+                                <td className="px-3 py-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black text-white flex-shrink-0"
+                                      style={{background:c}}>
+                                      {m.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <div className="font-semibold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">{m.name}</div>
+                                      <div className="text-sm text-slate-400">{m.jabatan}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-3 py-3 text-sm text-slate-400">
+                                  {(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP')}
+                                </td>
+                                {[{v:m.tickScore,c:'#ef4444'},{v:m.bastScore,c:'#f59e0b'},{v:m.lcScore,c:'#6366f1'},{v:m.rndScore,c:'#ec4899'}].map((sc,i)=>(
+                                  <td key={i} className="px-3 py-3">
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-sm font-bold" style={{color:sc.c}}>{sc.v}%</span>
+                                      <div className="w-14 h-1 rounded-full bg-slate-100 overflow-hidden">
+                                        <div className="h-full rounded-full transition-all" style={{width:`${sc.v}%`,background:sc.c}}/>
+                                      </div>
+                                    </div>
+                                  </td>
+                                ))}
+                                <td className="px-3 py-3 text-center">
+                                  <span className="text-base font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="text-sm font-bold px-2 py-1 rounded-full whitespace-nowrap"
+                                    style={{background:`${c}15`,color:c,border:`1px solid ${c}25`}}>
+                                    {lbl}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr style={{background:'#f1f5f9',borderTop:'1.5px solid #e2e8f0'}}>
+                            <td colSpan={3} className="px-4 py-2.5 text-sm font-black text-slate-600">Rata-rata Tim</td>
+                            {(()=>{
+                              const mj = selectedSnap.members_json;
+                              const n = Math.max(mj.length,1);
+                              const avgT=Math.round(mj.reduce((s,m)=>s+m.tickScore,0)/n);
+                              const avgB=Math.round(mj.reduce((s,m)=>s+m.bastScore,0)/n);
+                              const avgL=Math.round(mj.reduce((s,m)=>s+m.lcScore,0)/n);
+                              const avgR=Math.round(mj.reduce((s,m)=>s+m.rndScore,0)/n);
+                              const avgF=Math.round(mj.reduce((s,m)=>s+m.finalKPI,0)/n);
+                              return (
+                                <>
+                                  {[{v:avgT,c:'#ef4444'},{v:avgB,c:'#f59e0b'},{v:avgL,c:'#6366f1'},{v:avgR,c:'#ec4899'}].map((sc,i)=>(
+                                    <td key={i} className="px-3 py-2.5 text-center text-sm font-black" style={{color:sc.c}}>{sc.v}%</td>
+                                  ))}
+                                  <td className="px-3 py-2.5 text-center text-sm font-black" style={{color:kpiColor(avgF)}}>{avgF}%</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <span className="text-sm font-bold px-2 py-1 rounded-full"
+                                      style={{background:`${kpiColor(avgF)}15`,color:kpiColor(avgF),border:`1px solid ${kpiColor(avgF)}25`}}>
+                                      {kpiLabel(avgF)}
+                                    </span>
+                                  </td>
+                                </>
+                              );
+                            })()}
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  /* ══ LIST VIEW ══ */
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr style={{background:'#f8fafc'}} className="border-b border-slate-200">
+                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-400 uppercase tracking-widest">Periode</th>
+                          <th className="px-3 py-3 text-left text-sm font-bold text-slate-400 uppercase tracking-widest hidden sm:table-cell">Disimpan</th>
+                          <th className="px-3 py-3 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">Anggota</th>
+                          <th className="px-3 py-3 text-center text-sm font-bold text-slate-400 uppercase tracking-widest">Avg KPI</th>
+                          <th className="px-3 py-3 text-center text-sm font-bold text-slate-400 uppercase tracking-widest hidden sm:table-cell">Distribusi</th>
+                          <th className="px-4 py-3 text-right text-sm font-bold text-slate-400 uppercase tracking-widest">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {kpiSnapshots.map((snap, idx) => {
+                          const avg = snap.members_json.length
+                            ? Math.round(snap.members_json.reduce((s,m)=>s+m.finalKPI,0)/snap.members_json.length) : 0;
+                          const c = kpiColor(avg);
+                          const excellent = snap.members_json.filter(m=>m.finalKPI>=85).length;
+                          const good      = snap.members_json.filter(m=>m.finalKPI>=70&&m.finalKPI<85).length;
+                          const fair      = snap.members_json.filter(m=>m.finalKPI>=50&&m.finalKPI<70).length;
+                          const needsW    = snap.members_json.filter(m=>m.finalKPI<50).length;
+                          return (
+                            <tr key={snap.id}
+                              className="border-b border-slate-50 hover:bg-blue-50/30 cursor-pointer transition-colors group"
+                              onClick={()=>setExpandedSnapshot(snap.id)}>
+                              <td className="px-4 py-3.5">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-black"
+                                    style={{background:`${c}12`,color:c,border:`1px solid ${c}25`}}>
+                                    {snap.period==='6m'?'6B':'1T'}
+                                  </div>
+                                  <div>
+                                    <div className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">{snap.period_label}</div>
+                                    <div className="text-sm text-slate-400">
+                                      {MN[(snap.start_month??1)-1]} – {MN[(snap.end_month??12)-1]} {snap.year}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3.5 hidden sm:table-cell">
+                                <div className="text-sm text-slate-500">
+                                  {new Date(snap.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}
+                                </div>
+                                <div className="text-sm text-slate-400">{snap.created_by}</div>
+                              </td>
+                              <td className="px-3 py-3.5 text-center">
+                                <span className="text-sm font-bold text-slate-700">{snap.members_json.length}</span>
+                              </td>
+                              <td className="px-3 py-3.5 text-center">
+                                <div className="inline-flex flex-col items-center">
+                                  <span className="text-base font-black" style={{color:c}}>{avg}%</span>
+                                  <span className="text-sm font-bold" style={{color:c}}>{kpiLabel(avg)}</span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3.5 hidden sm:table-cell">
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {excellent>0 && <span className="text-sm font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{excellent} Excellent</span>}
+                                  {good>0      && <span className="text-sm font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700">{good} Good</span>}
+                                  {fair>0      && <span className="text-sm font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700">{fair} Fair</span>}
+                                  {needsW>0    && <span className="text-sm font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-700">{needsW} NW</span>}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3.5" onClick={e=>e.stopPropagation()}>
+                                <div className="flex items-center gap-1.5 justify-end">
+                                  <button onClick={()=>exportSnapshotExcel(snap)}
+                                    title="Export Excel"
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-all">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                  </button>
+                                  {scope.kind==='admin' && (
+                                    <button onClick={()=>deleteSnapshot(snap.id,snap.period_label)}
+                                      title="Hapus periode ini"
+                                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                  )}
+                                  <button onClick={()=>setExpandedSnapshot(snap.id)}
+                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
             );
           })()}
 
+          {/* ══ POPUP DETAIL MEMBER — RIWAYAT KPI (Snapshot) ══ */}
+          {selectedSnapMember && (() => {
+            // Cari snapshot yang sedang dibuka
+            const snap = kpiSnapshots.find(s => s.id === expandedSnapshot);
+            if (!snap) return null;
+            const m = snap.members_json.find(x => x.id === selectedSnapMember);
+            if (!m) return null;
+            const noData = m.tickScore===0&&m.bastScore===0&&m.lcScore===0&&m.rndScore===0;
+            const kpiCol = (s:number) => s>=85?'#10b981':s>=70?'#3b82f6':s>=50?'#f59e0b':'#ef4444';
+            const c = noData ? '#94a3b8' : kpiCol(m.finalKPI);
+            const lbl = noData?'Belum Ada Data':m.finalKPI>=85?'Excellent':m.finalKPI>=70?'Good':m.finalKPI>=50?'Fair':'Needs Work';
+            const modalContent = (
+              <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+                style={{background:'rgba(0,0,0,0.55)',backdropFilter:'blur(6px)'}}
+                onClick={e=>{if(e.target===e.currentTarget)setSelectedSnapMember(null);}}>
+                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                  style={{scrollbarWidth:'thin'}}>
+
+                  {/* Header */}
+                  <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10 rounded-t-3xl">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg text-white flex-shrink-0"
+                      style={{background:`linear-gradient(135deg,${c},${c}99)`}}>
+                      {m.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-slate-800 text-base truncate">{m.name}</div>
+                      <div className="text-sm text-slate-400">{m.jabatan} · {(m.team_type||'').replace('Team PTS ','').replace('Team PTS','IVP')}</div>
+                    </div>
+                    <div className="flex flex-col items-end mr-2 flex-shrink-0">
+                      <div className="text-3xl font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</div>
+                      <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">KPI Score</div>
+                    </div>
+                    {/* Frozen badge */}
+                    <div className="flex flex-col items-center gap-1 mr-2">
+                      <span className="text-sm font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 whitespace-nowrap">
+                        🔒 Snapshot
+                      </span>
+                      <span className="text-sm text-slate-400 whitespace-nowrap">{snap.period_label}</span>
+                    </div>
+                    <button onClick={()=>setSelectedSnapMember(null)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all flex-shrink-0">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+
+                  <div className="p-5 space-y-4">
+
+                    {/* Info snapshot frozen */}
+                    <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700">
+                      <span className="text-base">🔒</span>
+                      <span>Data ini adalah <b>snapshot yang dikunci</b> pada periode <b>{snap.period_label}</b>. Nilai tidak akan berubah meski data platform terus update — ini adalah catatan final periode tersebut.</span>
+                    </div>
+
+                    {/* KPI Score Breakdown */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        {label:'Ticketing',      val:m.tickScore, weight:'20%', color:'#ef4444', icon:'🎫', bg:'#fef2f2', border:'#ef444440'},
+                        {label:'BAST & Demo',     val:m.bastScore, weight:'40%', color:'#f59e0b', icon:'⭐', bg:'#fffbeb', border:'#f59e0b40'},
+                        {label:'Learning Center', val:m.lcScore,   weight:'30%', color:'#6366f1', icon:'🎓', bg:'#f5f3ff', border:'#6366f140'},
+                        {label:'R&D Tech Note',   val:m.rndScore,  weight:'10%', color:'#ec4899', icon:'📝', bg:'#fdf4ff', border:'#ec489940'},
+                      ].map(k=>(
+                        <div key={k.label} className="rounded-xl border p-2.5 text-center" style={{background:k.bg,borderColor:k.border}}>
+                          <div className="text-sm mb-0.5">{k.icon}</div>
+                          <div className="text-sm font-bold text-slate-400 uppercase tracking-wide leading-tight mb-1">{k.label}</div>
+                          <div className="text-xl font-black" style={{color:k.color}}>{k.val}%</div>
+                          <div className="text-sm text-slate-400">bobot {k.weight}</div>
+                          <div className="w-full h-1 rounded-full bg-slate-100 overflow-hidden mt-1.5">
+                            <div className="h-full rounded-full" style={{width:`${k.val}%`,background:k.color}}/>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Predikat final */}
+                    <div className="flex items-center justify-between px-4 py-3 rounded-xl border"
+                      style={{background:`${c}08`,borderColor:`${c}30`}}>
+                      <span className="text-sm font-bold text-slate-600">KPI Final</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-black" style={{color:c}}>{noData?'—':`${m.finalKPI}%`}</span>
+                        <span className="text-sm font-bold px-2.5 py-1 rounded-full"
+                          style={{background:`${c}15`,color:c,border:`1px solid ${c}30`}}>
+                          {lbl}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Detail per komponen */}
+                    <div>
+                      <div className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">📊 Detail Komponen (Data Saat Snapshot)</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Ticketing */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#ef444440',background:'#fef2f2'}}>
+                          <div className="text-sm font-bold text-red-600 uppercase tracking-wider mb-2">🎫 Ticketing — Skor {m.tickScore}%</div>
+                          <div className="space-y-1 text-sm text-slate-600">
+                            <div className="flex justify-between"><span>Handled</span><b>{m.ticketsHandled??'—'}</b></div>
+                            <div className="flex justify-between"><span>Solved</span><b className="text-emerald-600">{m.ticketsSolved??'—'}</b></div>
+                            <div className="flex justify-between"><span>Overdue</span><b className={(m.ticketsOverdue??0)>0?'text-red-600':'text-emerald-600'}>{m.ticketsOverdue??'—'}</b></div>
+                          </div>
+                        </div>
+                        {/* BAST */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#f59e0b40',background:'#fffbeb'}}>
+                          <div className="text-sm font-bold text-amber-600 uppercase tracking-wider mb-2">⭐ BAST & Demo — Skor {m.bastScore}%</div>
+                          <div className="space-y-1 text-sm text-slate-600">
+                            <div className="flex justify-between"><span>Total Review</span><b>{m.formReviewTotal??'—'}</b></div>
+                            <div className="flex justify-between"><span>Komplain (★1-2)</span><b className={(m.formReviewLowRating??0)>0?'text-red-600':'text-emerald-600'}>{m.formReviewLowRating??0}x</b></div>
+                          </div>
+                        </div>
+                        {/* Learning Center */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#6366f140',background:'#f5f3ff'}}>
+                          <div className="text-sm font-bold text-violet-600 uppercase tracking-wider mb-2">🎓 Learning Center — Skor {m.lcScore}%</div>
+                          <div className="space-y-1 text-sm text-slate-600">
+                            <div className="flex justify-between"><span>Total Attempt</span><b>{m.lcAttempts??'—'}</b></div>
+                            <div className="flex justify-between"><span>Avg Score</span><b>{m.lcAvgScore??'—'}</b></div>
+                            <div className="flex justify-between"><span>Lulus</span><b className="text-emerald-600">{m.lcPassed??'—'}</b></div>
+                          </div>
+                        </div>
+                        {/* R&D Tech Note */}
+                        <div className="rounded-xl border p-3" style={{borderColor:'#ec489940',background:'#fdf4ff'}}>
+                          <div className="text-sm font-bold text-pink-600 uppercase tracking-wider mb-2">📝 R&D Tech Note — Skor {m.rndScore}%</div>
+                          <div className="space-y-1 text-sm text-slate-600">
+                            <div className="flex justify-between"><span>Tech Note Approved</span><b className="text-pink-700">{m.techNotesApproved??0}</b></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            );
+            return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
+          })()}
+
           {/* ══════════ TAB CROSS-MODULE ANALYTICS ══════════ */}
           {tab==='cross'&&(
             <div className="space-y-5">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">🔀 Cross-Module Overview — Ticket · Reminder · Learning Center</div>
+              <div className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-1">🔀 Cross-Module Overview — Ticket · Reminder · Learning Center</div>
 
               {/* Monthly bar chart: 3 modules side by side */}
               {(() => {
@@ -2324,8 +2666,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 return (
                   <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">📅 Aktivitas Bulanan {year}</h3>
-                      <div className="flex items-center gap-4 text-[11px]">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">📅 Aktivitas Bulanan {year}</h3>
+                      <div className="flex items-center gap-4 text-sm">
                         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{background:'#ef4444'}}/>Ticket</span>
                         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{background:'#6366f1'}}/>LC Attempt</span>
                       </div>
@@ -2333,9 +2675,9 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     {allMembers.length === 0 ? (
                       <div className="flex flex-col items-center gap-2 py-10">
                         <span className="text-3xl opacity-20">📊</span>
-                        <p className="text-xs text-slate-400">Buka tab KPI Team dulu untuk memuat data anggota</p>
+                        <p className="text-sm text-slate-400">Buka tab KPI Team dulu untuk memuat data anggota</p>
                         <button onClick={()=>{ setTab('kpi_team'); setTimeout(()=>fetchKPITeam(),100); }}
-                          className="mt-2 px-4 py-2 rounded-lg text-xs font-bold text-white"
+                          className="mt-2 px-4 py-2 rounded-lg text-sm font-bold text-white"
                           style={{background:'linear-gradient(135deg,#6366f1,#4f46e5)'}}>
                           Muat Data KPI Team
                         </button>
@@ -2353,7 +2695,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                                 <div className="w-[42%] rounded-t transition-all duration-700" title={`LC: ${l}`}
                                   style={{height:hL||2, background:'#6366f1', opacity:l?0.85:0.12}}/>
                               </div>
-                              <span className="text-[9px] text-slate-400">{m}</span>
+                              <span className="text-sm text-slate-400">{m}</span>
                             </div>
                           );
                         })}
@@ -2368,8 +2710,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* Tickets */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs" style={{background:'#fee2e2'}}>🎫</div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ticketing</span>
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{background:'#fee2e2'}}>🎫</div>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">Ticketing</span>
                   </div>
                   {[
                     {label:'Total',val:kpi?.tickets.total??0,color:'#64748b'},
@@ -2378,7 +2720,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     {label:'Overdue',val:(kpi?.tickets.byStatus??[]).find(s=>s.status==='Overdue')?.count??0,color:'#f59e0b'},
                   ].map(r=>(
                     <div key={r.label} className="flex items-center justify-between">
-                      <span className="text-xs text-slate-500">{r.label}</span>
+                      <span className="text-sm text-slate-500">{r.label}</span>
                       <span className="text-sm font-black" style={{color:r.color}}>{loading?'—':r.val}</span>
                     </div>
                   ))}
@@ -2386,8 +2728,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* Reminders */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs" style={{background:'#ede9fe'}}>📅</div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Reminder</span>
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{background:'#ede9fe'}}>📅</div>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">Reminder</span>
                   </div>
                   {[
                     {label:'Total',val:kpi?.reminders.total??0,color:'#64748b'},
@@ -2396,7 +2738,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     {label:'Overdue',val:kpi?.reminders.overdueCount??0,color:'#ef4444'},
                   ].map(r=>(
                     <div key={r.label} className="flex items-center justify-between">
-                      <span className="text-xs text-slate-500">{r.label}</span>
+                      <span className="text-sm text-slate-500">{r.label}</span>
                       <span className="text-sm font-black" style={{color:r.color}}>{loading?'—':r.val}</span>
                     </div>
                   ))}
@@ -2404,8 +2746,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 {/* Learning Center */}
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs" style={{background:'#ede9fe'}}>🎓</div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Learning Center</span>
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-sm" style={{background:'#ede9fe'}}>🎓</div>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">Learning Center</span>
                   </div>
                   {[
                     {label:'Total Sesi',val:kpi?.learning.totalSessions??0,color:'#64748b'},
@@ -2414,7 +2756,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     {label:'Avg Skor',val:`${kpi?.learning.avgScore??0} pts`,color:'#f59e0b'},
                   ].map(r=>(
                     <div key={r.label} className="flex items-center justify-between">
-                      <span className="text-xs text-slate-500">{r.label}</span>
+                      <span className="text-sm text-slate-500">{r.label}</span>
                       <span className="text-sm font-black" style={{color:r.color}}>{loading?'—':r.val}</span>
                     </div>
                   ))}
@@ -2425,14 +2767,14 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
               {kpiTeam.members.length > 0 && (
                 <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                   <div className="px-5 py-3 border-b border-slate-100">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">👥 Ringkasan KPI Tim — {kpiTeam.filterYear}</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-500">👥 Ringkasan KPI Tim — {kpiTeam.filterYear}</span>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs" style={{minWidth:560}}>
+                    <table className="w-full text-sm" style={{minWidth:560}}>
                       <thead>
                         <tr style={{background:'#f8fafc',borderBottom:'1px solid #e2e8f0'}}>
                           {['Nama','Tim','Ticket','LC','BAST','Skor KPI'].map(h=>(
-                            <th key={h} className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">{h}</th>
+                            <th key={h} className="px-3 py-2 text-left text-sm font-bold uppercase tracking-widest text-slate-400">{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -2450,7 +2792,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                           return (
                             <tr key={m.id} style={{borderBottom:'1px solid #f1f5f9'}} className="hover:bg-slate-50/50">
                               <td className="px-3 py-2 font-semibold text-slate-700">{m.name.split(' ').slice(0,2).join(' ')}</td>
-                              <td className="px-3 py-2 text-slate-400 text-[10px]">{m.team_type.replace('Team PTS ','')}</td>
+                              <td className="px-3 py-2 text-slate-400 text-sm">{m.team_type.replace('Team PTS ','')}</td>
                               <td className="px-3 py-2"><span className="font-bold text-red-500">{m.ticketsHandled}</span><span className="text-slate-400 ml-1">({m.ticketsOverdue} overdue)</span></td>
                               <td className="px-3 py-2"><span className="font-bold text-indigo-500">{m.lcAttempts}</span><span className="text-slate-400 ml-1">avg {m.lcAvgScore}</span></td>
                               <td className="px-3 py-2"><span className="font-bold text-amber-500">{m.formReviewLowRating}</span><span className="text-slate-400 ml-1">low-rating</span></td>
@@ -2468,7 +2810,8 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
 
           {/* ══════════ TAB AUDIT TRAIL ══════════ */}
           {tab==='audit'&&(
-            <div className="space-y-3">
+            <div className="rounded-2xl p-4 space-y-3"
+              style={{ background:'rgba(255,255,255,0.92)', backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', border:'1px solid rgba(0,0,0,0.07)', boxShadow:'0 2px 16px rgba(0,0,0,0.08)' }}>
               {/* Search + filter */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative flex-1 min-w-[180px]">
@@ -2477,15 +2820,15 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   </svg>
                   <input value={auditSearch} onChange={e=>setAuditSearch(e.target.value)}
                     placeholder="Cari actor, aksi, target..."
-                    className="w-full rounded-lg pl-8 pr-3 py-2 text-xs outline-none bg-slate-50 border border-slate-200 text-slate-700 focus:border-blue-300 focus:ring-1 focus:ring-blue-100 transition-all"/>
+                    className="w-full rounded-lg pl-8 pr-3 py-2 text-sm outline-none bg-slate-50 border border-slate-200 text-slate-700 focus:border-blue-300 focus:ring-1 focus:ring-blue-100 transition-all"/>
                 </div>
                 {(['all','ticket','reminder','piket','user'] as const).map(f=>(
                   <button key={f} onClick={()=>setAuditFilter(f)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition-all border ${auditFilter===f ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white/90 text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
+                    className={`px-3 py-1.5 rounded-lg text-sm font-bold tracking-wide transition-all border ${auditFilter===f ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white/90 text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
                     {f==='all'?'SEMUA':f.toUpperCase()}
                   </button>
                 ))}
-                <span className="text-[10px] ml-auto tracking-widest text-slate-400">{filteredAudit.length} ENTRI</span>
+                <span className="text-sm ml-auto tracking-widest text-slate-400">{filteredAudit.length} ENTRI</span>
               </div>
               {/* List */}
               <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1"
@@ -2495,7 +2838,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                       <div key={i} className="h-12 rounded-lg animate-pulse bg-slate-100"/>
                     ))
                   : filteredAudit.length===0
-                    ? <div className="text-center py-12 text-xs tracking-widest text-slate-300">TIDAK ADA DATA</div>
+                    ? <div className="text-center py-12 text-sm tracking-widest text-slate-300">TIDAK ADA DATA</div>
                     : filteredAudit.map((entry:AuditEntry,idx:number)=>(
                         <div key={entry.id??idx}><AuditRow entry={entry}/></div>
                       ))}
@@ -2504,7 +2847,6 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
           )}
 
         </div>{/* end content */}
-      </div>{/* end wrapper */}
 
       {/* ══ Modal Mulai KPI (Snapshot) ══ */}
       {showStartKPI && typeof document !== 'undefined' && createPortal(
@@ -2519,7 +2861,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 <div className="font-bold text-slate-800 text-base flex items-center gap-2">
                   <span className="text-lg">📸</span> Simpan Periode KPI
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-sm text-slate-400 mt-0.5">
                   Snapshot data akan tersimpan permanen & tidak berubah
                 </div>
               </div>
@@ -2560,16 +2902,16 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   <>
                   {/* Periode card */}
                   <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4">
-                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Periode Review</div>
+                    <div className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-2">Periode Review</div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xl font-black text-blue-700">{periodLabel}</div>
-                        <div className="text-[11px] text-blue-500 mt-0.5">
+                        <div className="text-sm text-blue-500 mt-0.5">
                           {MN_FULL[sm-1]} s.d. {MN_FULL[em-1]} {kpiTeam.filterYear} · {kpiTeam.filterPeriod==='6m'?'6 Bulan':'12 Bulan'}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[10px] text-blue-400 font-semibold">Tim</div>
+                        <div className="text-sm text-blue-400 font-semibold">Tim</div>
                         <div className="font-bold text-blue-700 text-sm">{scope.kind==='pts_sup'?scope.ptsTeamType:'Semua Tim PTS'}</div>
                       </div>
                     </div>
@@ -2583,14 +2925,14 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     ].map((s,i)=>(
                       <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-center">
                         <div className="text-2xl font-black" style={{color:s.c}}>{s.val}</div>
-                        <div className="text-[10px] text-slate-400 font-semibold mt-0.5">{s.label}</div>
+                        <div className="text-sm text-slate-400 font-semibold mt-0.5">{s.label}</div>
                       </div>
                     ))}
                   </div>
                   {/* Member pills */}
                   {kpiTeam.members.length>0&&(
                     <div>
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Preview Anggota</div>
+                      <div className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Preview Anggota</div>
                       <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1" style={{scrollbarWidth:'thin'}}>
                         {kpiTeam.members.map(m=>{
                           const _s=kpiSettings; const lcFd=(m.lcScores??[]).filter(sc=>sc<_s.lcMinScore).length;
@@ -2602,7 +2944,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                           const noData=m.ticketsHandled===0&&m.lcAttempts===0&&m.techNotesApproved===0;
                           const c=noData?'#94a3b8':f>=85?'#10b981':f>=70?'#3b82f6':f>=50?'#f59e0b':'#ef4444';
                           return (
-                            <span key={m.id} className="text-[10px] font-bold px-2 py-1 rounded-full"
+                            <span key={m.id} className="text-sm font-bold px-2 py-1 rounded-full"
                               style={{background:`${c}15`,color:c,border:`1px solid ${c}30`}}>
                               {m.name.split(' ')[0]} {noData?'—':`${f}%`}
                             </span>
@@ -2615,7 +2957,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                 );
               })()}
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-[11px] text-amber-700">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
                 <b>⚠️ Perhatian:</b> Setelah disimpan, data KPI periode ini <b>tidak dapat diubah</b>.
                 Pastikan semua data sudah lengkap sebelum menyimpan.
                 {kpiTeam.members.length===0&&(
@@ -2654,36 +2996,36 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div>
                 <div className="font-bold text-slate-800 text-base">⚙️ Pengaturan KPI</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Atur batas & bobot masing-masing komponen</div>
+                <div className="text-sm text-slate-400 mt-0.5">Atur batas & bobot masing-masing komponen</div>
               </div>
               <button onClick={()=>setShowSettings(false)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100">×</button>
             </div>
             <div className="p-6 space-y-5">
               {/* LC Min Score */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1.5 uppercase tracking-wide">🎓 Learning Center — Batas Nilai Minimum</label>
+                <label className="block text-sm font-bold text-slate-600 mb-1.5 uppercase tracking-wide">🎓 Learning Center — Batas Nilai Minimum</label>
                 <div className="flex items-center gap-3">
                   <input type="range" min={40} max={85} step={5} value={kpiSettings.lcMinScore}
                     onChange={e=>setKpiSettings(p=>({...p, lcMinScore:Number(e.target.value)}))}
                     className="flex-1 accent-violet-600"/>
                   <span className="text-lg font-black text-violet-600 w-12 text-right">&lt;{kpiSettings.lcMinScore}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1">Nilai di bawah ini dianggap tidak lulus KPI LC</div>
+                <div className="text-sm text-slate-400 mt-1">Nilai di bawah ini dianggap tidak lulus KPI LC</div>
               </div>
               {/* RnD Target */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1.5 uppercase tracking-wide">📝 R&D Tech Note — Target per Tahun</label>
+                <label className="block text-sm font-bold text-slate-600 mb-1.5 uppercase tracking-wide">📝 R&D Tech Note — Target per Tahun</label>
                 <div className="flex items-center gap-3">
                   <input type="range" min={1} max={8} step={1} value={kpiSettings.rndTarget}
                     onChange={e=>setKpiSettings(p=>({...p, rndTarget:Number(e.target.value)}))}
                     className="flex-1 accent-pink-600"/>
                   <span className="text-lg font-black text-pink-600 w-12 text-right">{kpiSettings.rndTarget}x</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1">Minimal Tech Note approved per tahun untuk nilai penuh</div>
+                <div className="text-sm text-slate-400 mt-1">Minimal Tech Note approved per tahun untuk nilai penuh</div>
               </div>
               {/* Bobot section */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-3 uppercase tracking-wide">📊 Bobot Komponen KPI (total harus 100%)</label>
+                <label className="block text-sm font-bold text-slate-600 mb-3 uppercase tracking-wide">📊 Bobot Komponen KPI (total harus 100%)</label>
                 <div className="space-y-3">
                   {([
                     {key:'ticketOverdueWeight', label:'🎫 Ticketing', color:'#ef4444'},
@@ -2692,7 +3034,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                     {key:'rndWeight', label:'📝 R&D Tech Note', color:'#ec4899'},
                   ] as {key: keyof KPISettings, label:string, color:string}[]).map(item=>(
                     <div key={item.key} className="flex items-center gap-3">
-                      <span className="text-[11px] font-semibold text-slate-600 w-36 flex-shrink-0">{item.label}</span>
+                      <span className="text-sm font-semibold text-slate-600 w-36 flex-shrink-0">{item.label}</span>
                       <input type="range" min={5} max={60} step={5} value={Math.round((kpiSettings[item.key] as number)*100)}
                         onChange={e=>setKpiSettings(p=>({...p, [item.key]:Number(e.target.value)/100}))}
                         className="flex-1" style={{accentColor:item.color}}/>
@@ -2703,7 +3045,7 @@ export default function DashboardKPI({ currentUser }: { currentUser: User }) {
                   ))}
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">Total bobot sekarang:</span>
+                  <span className="text-sm text-slate-500">Total bobot sekarang:</span>
                   <span className={`text-sm font-black ${Math.round((kpiSettings.ticketOverdueWeight+kpiSettings.bastWeight+kpiSettings.lcWeight+kpiSettings.rndWeight)*100)===100?'text-emerald-600':'text-red-500'}`}>
                     {Math.round((kpiSettings.ticketOverdueWeight+kpiSettings.bastWeight+kpiSettings.lcWeight+kpiSettings.rndWeight)*100)}%
                     {Math.round((kpiSettings.ticketOverdueWeight+kpiSettings.bastWeight+kpiSettings.lcWeight+kpiSettings.rndWeight)*100)===100?' ✓':' ⚠ harus 100%'}
