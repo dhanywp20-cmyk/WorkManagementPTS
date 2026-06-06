@@ -49,26 +49,42 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 }
 
 // ─── Team Switch ──────────────────────────────────────────────────────────────
-type TeamType = 'IVP' | 'MLDS';
+type TeamFilter = 'PTS' | 'Sales' | 'Marketing';
 
-function TeamSwitch({ active, onChange }: { active: TeamType; onChange: (t: TeamType) => void }) {
+const TEAM_FILTER_CONFIG: Record<TeamFilter, { label: string; emoji: string; activeClass: string }> = {
+  PTS:       { label: 'PTS',       emoji: '🔵', activeClass: 'bg-indigo-600 text-white' },
+  Sales:     { label: 'Sales',     emoji: '🟠', activeClass: 'bg-orange-500 text-white' },
+  Marketing: { label: 'Marketing', emoji: '🟣', activeClass: 'bg-purple-600 text-white' },
+};
+
+function isPTSUser(u: any)       { return u.role === 'team'; }
+function isSalesUser(u: any)     { return ['sales','guest'].includes((u.role ?? '').toLowerCase()) && !(u.sales_division ?? '').startsWith('Marketing:'); }
+function isMarketingUser(u: any) { return ['sales','guest'].includes((u.role ?? '').toLowerCase()) && (u.sales_division ?? '').startsWith('Marketing:'); }
+
+function matchesTeamFilter(u: any, filter: TeamFilter): boolean {
+  if (filter === 'PTS')       return isPTSUser(u);
+  if (filter === 'Sales')     return isSalesUser(u);
+  if (filter === 'Marketing') return isMarketingUser(u);
+  return false;
+}
+
+function TeamSwitch({ active, onChange }: { active: TeamFilter; onChange: (t: TeamFilter) => void }) {
   return (
     <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 flex-shrink-0">
-      {(['IVP', 'MLDS'] as TeamType[]).map(t => (
-        <button
-          key={t}
-          onClick={() => onChange(t)}
-          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-            active === t
-              ? t === 'IVP'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-emerald-600 text-white shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          {t === 'IVP' ? '🔵 PTS IVP' : '🟢 PTS MLDS'}
-        </button>
-      ))}
+      {(Object.keys(TEAM_FILTER_CONFIG) as TeamFilter[]).map(t => {
+        const cfg = TEAM_FILTER_CONFIG[t];
+        return (
+          <button
+            key={t}
+            onClick={() => onChange(t)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              active === t ? cfg.activeClass + ' shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {cfg.emoji} {cfg.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -97,7 +113,7 @@ export function AdminDashboard({ user }: { user: User }) {
   const [selectedUser, setSelectedUser] = useState<{ uid: string; name: string } | null>(null);
   const [userAttempts, setUserAttempts] = useState<any[]>([]);
   const [loadingUser, setLoadingUser] = useState(false);
-  const [activeTeam, setActiveTeam] = useState<TeamType>('IVP');
+  const [activeTeam, setActiveTeam] = useState<TeamFilter>('PTS');
   const [allTopUsers, setAllTopUsers] = useState<any[]>([]);
 
   useEffect(() => {
@@ -120,7 +136,7 @@ export function AdminDashboard({ user }: { user: User }) {
           .select('*, users(full_name), lc_quiz_sessions(session_name, passing_grade)')
           .eq('is_submitted', true).order('submitted_at', { ascending: false }).limit(50),
         supabase.from('lc_quiz_attempts')
-          .select('user_id, score, passed, tab_switches, time_taken_sec, total_questions, users(full_name, jabatan, sales_division, team_type)')
+          .select('user_id, score, passed, tab_switches, time_taken_sec, total_questions, users(full_name, jabatan, sales_division, team_type, role)')
           .eq('is_submitted', true),
         supabase.from('lc_questions').select('id, batch_name'),
         supabase.from('lc_answers').select('question_id, is_correct'),
@@ -148,13 +164,16 @@ export function AdminDashboard({ user }: { user: User }) {
       // ── Top performers + consistency + fast-submit ─────────────────────────
       const byUser: Record<string, {
         name: string; scores: number[]; passed: number; tabSw: number;
-        minScore: number; maxScore: number; fastCount: number; teamType: string | null;
+        minScore: number; maxScore: number; fastCount: number;
+        role: string | null; teamType: string | null; salesDivision: string | null;
       }> = {};
       allAtt.forEach((a: any) => {
         if (!byUser[a.user_id]) byUser[a.user_id] = {
           name: a.users?.full_name ?? '-', scores: [], passed: 0, tabSw: 0,
           minScore: Infinity, maxScore: -Infinity, fastCount: 0,
+          role: a.users?.role ?? null,
           teamType: a.users?.team_type ?? null,
+          salesDivision: a.users?.sales_division ?? null,
         };
         const sc = a.score ?? 0;
         byUser[a.user_id].scores.push(sc);
@@ -167,14 +186,15 @@ export function AdminDashboard({ user }: { user: User }) {
         if (tq >= 5 && ts < tq * 5) byUser[a.user_id].fastCount++;
       });
       const allUsers = Object.entries(byUser).map(([uid, v]) => ({
-        uid, name: v.name, teamType: v.teamType,
+        uid, name: v.name,
+        role: v.role, teamType: v.teamType, salesDivision: v.salesDivision,
         avg: v.scores.reduce((s: number, n: number) => s + n, 0) / v.scores.length,
         total: v.scores.length, passed: v.passed, tabSw: v.tabSw,
         consistency: v.scores.length >= 2 ? v.maxScore - v.minScore : null,
         fastCount: v.fastCount,
       })).sort((a, b) => b.avg - a.avg);
       setAllTopUsers(allUsers);
-      setTopUsers(allUsers.filter(u => u.teamType === 'IVP').slice(0, 20));
+      setTopUsers(allUsers.filter(u => matchesTeamFilter(u, 'PTS')).slice(0, 20));
 
       // ── Per division/jabatan ───────────────────────────────────────────────
       // Group key = sales_division if present, else jabatan, else 'Lainnya'
@@ -256,7 +276,7 @@ export function AdminDashboard({ user }: { user: User }) {
   // Re-filter performers when team switch changes
   useEffect(() => {
     if (allTopUsers.length > 0) {
-      setTopUsers(allTopUsers.filter(u => u.teamType === activeTeam).slice(0, 20));
+      setTopUsers(allTopUsers.filter(u => matchesTeamFilter(u, activeTeam)).slice(0, 20));
       setSearchPerformer('');
     }
   }, [activeTeam, allTopUsers]);
@@ -417,7 +437,7 @@ export function AdminDashboard({ user }: { user: User }) {
                   ))}
                   {filteredPerformers.length === 0 && (
                     <tr><td colSpan={6} className="text-center py-10 text-slate-400 text-sm">
-                      {loadingAnalytics ? 'Memuat data...' : searchPerformer ? 'Tidak ada hasil' : `Belum ada data untuk tim ${activeTeam}`}
+                      {loadingAnalytics ? 'Memuat data...' : searchPerformer ? 'Tidak ada hasil' : `Belum ada data untuk ${TEAM_FILTER_CONFIG[activeTeam].label}`}
                     </td></tr>
                   )}
                 </tbody>
